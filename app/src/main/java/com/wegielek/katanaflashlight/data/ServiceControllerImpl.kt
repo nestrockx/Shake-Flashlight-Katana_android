@@ -4,18 +4,22 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.wegielek.katanaflashlight.domain.ServiceController
+import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import com.wegielek.katanaflashlight.service.FlashlightForegroundService
 
 class ServiceControllerImpl(
     private val context: Context,
 ) : ServiceController {
     override fun startFlashlightService() {
+        if (isFlashlightServiceRunning()) return
+
         val intent = Intent(context, FlashlightForegroundService::class.java)
         ContextCompat.startForegroundService(context, intent)
     }
 
     override fun stopFlashlightService() {
+        if (!isFlashlightServiceRunning()) return
+
         val intent = Intent(context, FlashlightForegroundService::class.java)
         context.stopService(intent)
     }
@@ -30,7 +34,7 @@ class ServiceControllerImpl(
                 }
             }
         } catch (t: Throwable) {
-            // ignore, return flagged
+            // ignore
         }
         return false
     }

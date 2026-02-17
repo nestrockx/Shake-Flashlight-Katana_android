@@ -5,17 +5,35 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
-import com.wegielek.katanaflashlight.domain.FlashlightController
+import com.wegielek.katanaflashlight.domain.controller.FlashlightController
 
 class FlashlightControllerImpl(
     private val context: Context,
 ) : FlashlightController {
     private var cameraManager: CameraManager? = null
     private var cameraId: String? = null
+    private var isFlashOn: Boolean = false
+
+    private val torchCallback =
+        object : CameraManager.TorchCallback() {
+            override fun onTorchModeChanged(
+                id: String,
+                enabled: Boolean,
+            ) {
+                if (id == cameraId) {
+                    isFlashOn = enabled
+                }
+            }
+        }
 
     override fun initialize() {
         cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraId = cameraManager?.cameraIdList?.firstOrNull()
+
+        cameraManager?.registerTorchCallback(
+            torchCallback,
+            null, // callback on calling thread
+        )
     }
 
     override fun hasFlashlight(): Boolean = context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
@@ -23,9 +41,11 @@ class FlashlightControllerImpl(
     override fun hasStrengthLevels(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val level =
-                cameraManager
-                    ?.getCameraCharacteristics(cameraId!!)
-                    ?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL)
+                cameraId
+                    ?.let {
+                        cameraManager
+                            ?.getCameraCharacteristics(it)
+                    }?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL)
             return level != null && level > 1
         }
         return false
@@ -33,20 +53,33 @@ class FlashlightControllerImpl(
 
     override fun getMaxStrengthLevel(): Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            cameraManager
-                ?.getCameraCharacteristics(cameraId!!)
-                ?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL) ?: 1
+            cameraId
+                ?.let {
+                    cameraManager
+                        ?.getCameraCharacteristics(it)
+                }?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL) ?: 1
         } else {
             1
         }
 
-    override fun toggleFlashlight(flashOn: Boolean) {
-        cameraManager?.setTorchMode(cameraId!!, flashOn)
+    override fun toggleFlashlight() {
+        cameraId?.let { cameraManager?.setTorchMode(it, !isFlashOn) }
+    }
+
+    override fun turnOffFlashlight() {
+        cameraId?.let { cameraManager?.setTorchMode(it, false) }
     }
 
     override fun setStrength(level: Int) {
+        if (!isFlashOn) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, level)
+            cameraId?.let { cameraManager?.turnOnTorchWithStrengthLevel(it, level) }
         }
+    }
+
+    override fun isFlashlightOn(): Boolean = isFlashOn
+
+    override fun release() {
+        cameraManager?.unregisterTorchCallback(torchCallback)
     }
 }

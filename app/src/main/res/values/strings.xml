@@ -12,7 +12,7 @@
     <string name="instruction">Perform double fast slash or one longer slash movement with your device to turn on/off the flashlight</string>
     <string name="notification_permission_needed">Notification permission is needed for app to work in background</string>
     <string name="allow_notification">Grant necessary permissions</string>
-    <string name="close">Turn off</string>
+    <string name="close_notification">Turn off</string>
     <string name="on_off">On/off shake detection</string>
     <string name="lack_permissions">Lacks necessary permissions</string>
 

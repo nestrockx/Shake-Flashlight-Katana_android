@@ -21,7 +21,7 @@ fun HyperlinkText(
     fullText: String,
     textColor: Color = MaterialTheme.colorScheme.tertiary,
     linkText: List<String>,
-    linkTextColor: Color = Color.Blue,
+    linkTextColor: Color = MaterialTheme.colorScheme.primary,
     linkTextFontWeight: FontWeight = FontWeight.Medium,
     linkTextDecoration: TextDecoration = TextDecoration.Underline,
     hyperlinks: List<String> = listOf(""),

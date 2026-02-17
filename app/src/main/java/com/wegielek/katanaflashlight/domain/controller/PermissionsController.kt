@@ -1,7 +1,7 @@
-package com.wegielek.katanaflashlight.domain
+package com.wegielek.katanaflashlight.domain.controller
 
 // PermissionChecker.kt
-interface PermissionChecker {
+interface PermissionsController {
     fun hasCameraPermission(): Boolean
 
     fun hasNotificationPermission(): Boolean

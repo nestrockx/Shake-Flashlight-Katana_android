@@ -45,7 +45,7 @@ fun KatanaSlider(
                 .fillMaxWidth()
                 .height(60.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(1f, 1f, 1f, 0.75f))
+                .background(MaterialTheme.colorScheme.onSurface.copy(0.75f))
                 .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Slider(
@@ -62,9 +62,9 @@ fun KatanaSlider(
                 SliderDefaults.colors(
                     thumbColor = MaterialTheme.colorScheme.primary,
                     activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = Color(0xFFBDBDBD),
+                    inactiveTrackColor = MaterialTheme.colorScheme.tertiaryContainer,
                     activeTickColor = MaterialTheme.colorScheme.primaryContainer,
-                    inactiveTickColor = Color.Gray,
+                    inactiveTickColor = MaterialTheme.colorScheme.tertiary,
                 ),
         )
     }

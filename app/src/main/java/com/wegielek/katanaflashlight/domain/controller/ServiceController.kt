@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.domain
+package com.wegielek.katanaflashlight.domain.controller
 
 interface ServiceController {
     fun startFlashlightService()

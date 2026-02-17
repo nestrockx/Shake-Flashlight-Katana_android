@@ -20,6 +20,7 @@ private val DarkColorScheme =
         primaryContainer = DarkRed,
         secondary = White,
         tertiary = Grey,
+        tertiaryContainer = LightGrey,
         onSurface = White,
         surface = Black,
     )
@@ -30,6 +31,7 @@ private val LightColorScheme =
         primaryContainer = DarkRed,
         secondary = White,
         tertiary = Grey,
+        tertiaryContainer = LightGrey,
         onSurface = White,
         surface = Black,
     /* Other default colors to override

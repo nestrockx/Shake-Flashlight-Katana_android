@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.wegielek.katanaflashlight.Prefs.instructionExpired
 import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaBackground
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaIconButton
@@ -66,8 +65,6 @@ fun LandingScreen(
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
 
-    val instructionExpired by context.instructionExpired.collectAsState(initial = true)
-
     val oldAndroidInit by viewModel.olderAndroidInit.collectAsState()
     val oldAndroidClicked by viewModel.olderAndroidClicked.collectAsState()
 
@@ -86,7 +83,7 @@ fun LandingScreen(
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
-            viewModel.setHasCameraPermission(isGranted)
+            viewModel.updatePermissions()
             if (isGranted) {
                 viewModel.startService()
                 val handler = Handler(Looper.getMainLooper())
@@ -99,7 +96,7 @@ fun LandingScreen(
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
-            viewModel.setHasNotificationPermission(isGranted)
+            viewModel.updatePermissions()
             if (isGranted) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     cameraLauncher.launch(Manifest.permission.CAMERA)
@@ -145,6 +142,7 @@ fun LandingScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if (cameraRequested) {
                 KatanaInstructionDialog(
+                    instructionExpired = state.instructionExpired,
                     onInit = { viewModel.startService() },
                     onConfirm = { viewModel.setInstructionExpired(true) },
                 )
@@ -152,16 +150,18 @@ fun LandingScreen(
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (notificationRequested) {
                 KatanaInstructionDialog(
+                    instructionExpired = state.instructionExpired,
                     onInit = { viewModel.startService() },
                     onConfirm = { viewModel.setInstructionExpired(true) },
                 )
             }
         } else if (oldAndroidClicked) {
             KatanaInstructionDialog(
+                instructionExpired = state.instructionExpired,
                 onInit = { viewModel.startService() },
                 onConfirm = { viewModel.setInstructionExpired(true) },
             )
-        } else if (!instructionExpired) {
+        } else if (!state.instructionExpired) {
             viewModel.setOldAndroidInit(true)
         }
         if (!oldAndroidInit) {
@@ -214,11 +214,14 @@ fun LandingScreen(
                             stringResource(R.string.on_off),
                             state.katanaServiceOn,
                         ) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && viewModel.hasCameraPermission() &&
-                                viewModel.hasNotificationPermission()
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                                hasCameraPermission &&
+                                hasNotificationPermission
                             ) {
                                 viewModel.onKatanaServiceSwitch(it)
-                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && viewModel.hasNotificationPermission()) {
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                hasNotificationPermission
+                            ) {
                                 viewModel.onKatanaServiceSwitch(it)
                             } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                                 viewModel.onKatanaServiceSwitch(it)

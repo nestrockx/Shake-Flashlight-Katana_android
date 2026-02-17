@@ -5,16 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wegielek.katanaflashlight.Prefs
 import com.wegielek.katanaflashlight.Prefs.state
-import com.wegielek.katanaflashlight.domain.FlashlightController
-import com.wegielek.katanaflashlight.domain.PermissionChecker
-import com.wegielek.katanaflashlight.domain.ServiceController
+import com.wegielek.katanaflashlight.domain.controller.FlashlightController
+import com.wegielek.katanaflashlight.domain.controller.PermissionsController
+import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 sealed class UiState {
-    data class Properties(
+    data class Settings(
         val sensitivity: Float,
         val flashlightOn: Boolean,
         val vibrationOn: Boolean,
@@ -22,28 +22,30 @@ sealed class UiState {
         val strength: Int,
         val maxStrength: Int,
         val hasStrengthLevels: Boolean,
+        val instructionExpired: Boolean,
     ) : UiState()
 }
 
 class LandingViewModel(
     private val appContext: Context,
     private val service: ServiceController,
-    private val permissions: PermissionChecker,
+    private val permissions: PermissionsController,
     private val flashlightController: FlashlightController,
 ) : ViewModel() {
     private val _uiState =
         MutableStateFlow(
-            UiState.Properties(
+            UiState.Settings(
                 sensitivity = 5f,
                 flashlightOn = false,
-                vibrationOn = false,
+                vibrationOn = true,
                 katanaServiceOn = false,
                 strength = 1,
                 maxStrength = 1,
                 hasStrengthLevels = false,
+                instructionExpired = false,
             ),
         )
-    val uiState: StateFlow<UiState.Properties> = _uiState
+    val uiState: StateFlow<UiState.Settings> = _uiState
 
     var olderAndroidInit = MutableStateFlow(false)
         private set
@@ -59,50 +61,28 @@ class LandingViewModel(
         olderAndroidInit.value = value
     }
 
-    var hasCameraPermission = MutableStateFlow(false)
-        private set
-    var hasNotificationPermission = MutableStateFlow(false)
-        private set
+    private val _hasCameraPermission = MutableStateFlow(false)
+    val hasCameraPermission: StateFlow<Boolean> = _hasCameraPermission
 
-    fun setHasCameraPermission(value: Boolean) {
-        hasCameraPermission.value = value
+    private val _hasNotificationPermission = MutableStateFlow(false)
+    val hasNotificationPermission: StateFlow<Boolean> = _hasNotificationPermission
+
+    fun updatePermissions() {
+        _hasCameraPermission.value = permissions.hasCameraPermission()
+        _hasNotificationPermission.value = permissions.hasNotificationPermission()
     }
-
-    fun setHasNotificationPermission(value: Boolean) {
-        hasNotificationPermission.value = value
-    }
-
-    private fun hasStrengthLevels(): Boolean = flashlightController.hasStrengthLevels()
-
-    private fun getMaxStrengthLevel(): Int = flashlightController.getMaxStrengthLevel()
-
-    init {
-        viewModelScope.launch {
-            Prefs.setKatanaServiceRunning(appContext, isServiceRunning())
-        }
-    }
-
-    fun hasCameraPermission(): Boolean = permissions.hasCameraPermission()
-
-    fun hasNotificationPermission(): Boolean = permissions.hasNotificationPermission()
 
     fun startService() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(katanaServiceOn = true)
-            if (!isServiceRunning()) {
-                service.startFlashlightService()
-            }
+            service.startFlashlightService()
         }
     }
-
-    fun isServiceRunning(): Boolean = service.isFlashlightServiceRunning()
 
     fun stopService() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(katanaServiceOn = false)
-            if (isServiceRunning()) {
-                service.stopFlashlightService()
-            }
+            service.stopFlashlightService()
         }
     }
 
@@ -110,23 +90,21 @@ class LandingViewModel(
         viewModelScope.launch {
             flashlightController.initialize()
 
-            hasCameraPermission.value = hasCameraPermission()
-            hasNotificationPermission.value = hasNotificationPermission()
+            updatePermissions()
 
             _uiState.value = context.state.first()
-
-            _uiState.value = _uiState.value.copy(hasStrengthLevels = hasStrengthLevels())
-            _uiState.value = _uiState.value.copy(maxStrength = getMaxStrengthLevel())
-            _uiState.value = _uiState.value.copy(katanaServiceOn = isServiceRunning())
+            _uiState.value = _uiState.value.copy(hasStrengthLevels = flashlightController.hasStrengthLevels())
+            _uiState.value = _uiState.value.copy(maxStrength = flashlightController.getMaxStrengthLevel())
+            _uiState.value = _uiState.value.copy(katanaServiceOn = service.isFlashlightServiceRunning())
         }
     }
 
-    fun canUseFlashlight(): Boolean = flashlightController.hasFlashlight()
+    fun hasFlashlight(): Boolean = flashlightController.hasFlashlight()
 
     fun toggleFlashlight() {
         viewModelScope.launch {
             val flashOn = appContext.state.first().flashlightOn
-            flashlightController.toggleFlashlight(!flashOn)
+            flashlightController.toggleFlashlight()
             _uiState.value = _uiState.value.copy(flashlightOn = !flashOn)
         }
     }
@@ -134,9 +112,7 @@ class LandingViewModel(
     fun onStrengthChange(strength: Int) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(strength = strength)
-            if (appContext.state.first().flashlightOn) {
-                flashlightController.setStrength(strength)
-            }
+            flashlightController.setStrength(strength)
         }
     }
 
@@ -167,8 +143,12 @@ class LandingViewModel(
     }
 
     fun setInstructionExpired(value: Boolean) {
-        viewModelScope.launch {
-            Prefs.setInstructionExpired(appContext, value)
-        }
+        _uiState.value = _uiState.value.copy(instructionExpired = value)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // TODO
+//        flashlightController.release()
     }
 }

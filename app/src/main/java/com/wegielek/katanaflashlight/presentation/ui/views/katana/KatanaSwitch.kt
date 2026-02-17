@@ -41,8 +41,10 @@ fun KatanaSwitch(
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(shape = RoundedCornerShape(8.dp), color = Color.White.copy(0.75f))
-                .padding(end = 8.dp),
+                .background(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.75f),
+                ).padding(end = 8.dp),
     ) {
         Switch(
             checked = checked,

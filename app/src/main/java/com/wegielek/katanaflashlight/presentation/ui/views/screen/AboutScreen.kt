@@ -41,12 +41,16 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = stringResource(R.string.back_button),
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(bounded = false, color = Color.White),
+                            indication =
+                                ripple(
+                                    bounded = false,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                ),
                             onClick = navigateToLanding,
                         ).align(Alignment.TopStart)
                         .padding(8.dp)

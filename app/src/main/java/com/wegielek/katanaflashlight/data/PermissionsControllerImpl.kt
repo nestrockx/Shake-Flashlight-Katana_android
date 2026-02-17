@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
-import com.wegielek.katanaflashlight.domain.PermissionChecker
+import com.wegielek.katanaflashlight.domain.controller.PermissionsController
 
-class PermissionCheckerImpl(
+class PermissionsControllerImpl(
     private val context: Context,
-) : PermissionChecker {
+) : PermissionsController {
     override fun hasCameraPermission(): Boolean =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==

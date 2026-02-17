@@ -25,23 +25,24 @@ object Prefs {
     private val HAS_STRENGTH_LEVELS_KEY = booleanPreferencesKey("has_strength_levels")
     private val INTRO_KEY = booleanPreferencesKey("intro")
 
-    val Context.state: Flow<UiState.Properties>
+    val Context.state: Flow<UiState.Settings>
         get() =
             dataStore.data.map {
-                UiState.Properties(
+                UiState.Settings(
                     sensitivity = it[SENSITIVITY_KEY] ?: 5f,
                     flashlightOn = it[FLASH_KEY] ?: false,
-                    vibrationOn = it[VIBRATION_KEY] ?: false,
+                    vibrationOn = it[VIBRATION_KEY] ?: true,
                     katanaServiceOn = it[KATANA_KEY] ?: false,
                     strength = it[STRENGTH_KEY] ?: (it[MAX_STRENGTH_KEY] ?: 1),
                     maxStrength = it[MAX_STRENGTH_KEY] ?: 1,
                     hasStrengthLevels = it[HAS_STRENGTH_LEVELS_KEY] ?: false,
+                    instructionExpired = it[INTRO_KEY] ?: false,
                 )
             }
 
     suspend fun saveState(
         context: Context,
-        state: UiState.Properties,
+        state: UiState.Settings,
     ) {
         context.dataStore.edit {
             it[SENSITIVITY_KEY] = state.sensitivity
@@ -51,30 +52,7 @@ object Prefs {
             it[STRENGTH_KEY] = state.strength
             it[MAX_STRENGTH_KEY] = state.maxStrength
             it[HAS_STRENGTH_LEVELS_KEY] = state.hasStrengthLevels
+            it[INTRO_KEY] = state.instructionExpired
         }
-    }
-
-    val Context.instructionExpired: Flow<Boolean>
-        get() = dataStore.data.map { it[INTRO_KEY] ?: false }
-
-    suspend fun setFlashlightOn(
-        context: Context,
-        value: Boolean,
-    ) {
-        context.dataStore.edit { it[FLASH_KEY] = value }
-    }
-
-    suspend fun setKatanaServiceRunning(
-        context: Context,
-        value: Boolean,
-    ) {
-        context.dataStore.edit { it[KATANA_KEY] = value }
-    }
-
-    suspend fun setInstructionExpired(
-        context: Context,
-        value: Boolean,
-    ) {
-        context.dataStore.edit { it[INTRO_KEY] = value }
     }
 }

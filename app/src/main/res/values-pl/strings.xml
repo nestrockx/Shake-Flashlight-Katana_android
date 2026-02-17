@@ -12,7 +12,7 @@
     <string name="instruction">Wykonaj telefonem dwukrotny szybki lub jeden dłuższy ruch cięcia(potrząśnij) by w(y)łączyć latarkę</string>
     <string name="notification_permission_needed">Pozwolenie na powiadomienia jest potrzebne by aplikacja działała w tle</string>
     <string name="allow_notification">Udziel koniecznych pozwoleń</string>
-    <string name="close">Wyłącz</string>
+    <string name="close_notification">Wyłącz</string>
     <string name="on_off">W(y)łącz wykrywanie potrząśnięć</string>
     <string name="lack_permissions">Brak potrzebnych pozwoleń</string>
 

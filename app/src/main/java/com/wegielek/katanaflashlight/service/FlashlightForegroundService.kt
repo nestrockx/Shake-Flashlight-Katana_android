@@ -6,42 +6,46 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.wegielek.katanaflashlight.MainActivity
-import com.wegielek.katanaflashlight.Prefs
 import com.wegielek.katanaflashlight.Prefs.state
 import com.wegielek.katanaflashlight.R
+import com.wegielek.katanaflashlight.domain.controller.FlashlightController
+import com.wegielek.katanaflashlight.domain.controller.VibrationController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.getValue
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 class FlashlightForegroundService :
     Service(),
-    SensorEventListener {
+    SensorEventListener,
+    KoinComponent {
+    private val channelID = "ForegroundServiceChannel"
+    private val logTag: String = FlashlightForegroundService::class.java.getSimpleName()
+
+    private val flashlightController: FlashlightController by inject()
+    private val vibrationController: VibrationController by inject()
+
     private lateinit var wakeLock: PowerManager.WakeLock
 
     private val serviceJob = SupervisorJob()
@@ -69,31 +73,22 @@ class FlashlightForegroundService :
         wakeLock =
             powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
-                LOG_TAG,
+                logTag,
             )
         handler.post(acquire())
 
         if (intent?.extras?.getInt("close") == 1) {
-            Toast.makeText(this, getString(R.string.katana_dismissed), Toast.LENGTH_SHORT).show()
-            serviceScope.launch {
-                Prefs.setKatanaServiceRunning(applicationContext, false)
-            }
+            Toast
+                .makeText(
+                    this,
+                    getString(R.string.katana_dismissed),
+                    Toast.LENGTH_SHORT,
+                ).show()
             stopSelf()
         }
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            cameraManager = applicationContext.getSystemService(CAMERA_SERVICE) as CameraManager?
-            try {
-                cameraId = cameraManager?.cameraIdList?.get(0)
-            } catch (e: CameraAccessException) {
-                e.printStackTrace()
-            }
-        } else {
-            Toast.makeText(this, getString(R.string.flashlight_not_available), Toast.LENGTH_SHORT).show()
-        }
 
         accelerometerSensor?.let {
             sensorManager.registerListener(
@@ -107,45 +102,6 @@ class FlashlightForegroundService :
         return START_STICKY
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        handler.removeCallbacks(motionReset1)
-        handler.removeCallbacks(motionReset2)
-        handler.removeCallbacks(motionReset3)
-
-        // Unregister sensor listener
-        sensorManager.unregisterListener(this)
-
-        // Remove all pending callbacks
-        handler.removeCallbacksAndMessages(null)
-
-        // Safely release wake lock
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
-
-        // Ensure torch is off when service stops
-        serviceScope.launch {
-            try {
-                cameraManager?.setTorchMode(cameraId ?: return@launch, false)
-                Prefs.setFlashlightOn(applicationContext, false)
-            } catch (e: Exception) {
-                Log.e(LOG_TAG, "Failed to turn off torch in onDestroy", e)
-            }
-        }
-
-        // Reset katana state
-        serviceScope.launch {
-            Prefs.setKatanaServiceRunning(applicationContext, false)
-        }
-
-        // Cancel all coroutines to avoid leaks
-        serviceScope.cancel()
-
-        Log.i(LOG_TAG, "FlashlightForegroundService destroyed")
-    }
-
     private fun startForegroundService() {
         val notification = createNotification()
         startForeground(1, notification)
@@ -155,7 +111,7 @@ class FlashlightForegroundService :
         createNotificationChannel()
 
         val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent =
+        val pendingNotificationIntent =
             PendingIntent.getActivity(
                 this,
                 0,
@@ -163,24 +119,27 @@ class FlashlightForegroundService :
                 PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val deleteIntent = Intent(this, FlashlightForegroundService::class.java)
-        deleteIntent.putExtra("close", 1)
-        val deletePendingIntent =
+        val closeIntent = Intent(this, FlashlightForegroundService::class.java)
+        closeIntent.putExtra("close", 1)
+        val closePendingIntent =
             PendingIntent.getService(
                 this,
                 0,
-                deleteIntent,
+                closeIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
         return NotificationCompat
-            .Builder(this, CHANNEL_ID)
+            .Builder(this, channelID)
             .setContentText(getString(R.string.katana_is_running))
-            .setContentIntent(pendingIntent)
+            .setContentIntent(pendingNotificationIntent)
             .setSmallIcon(R.drawable.ic_katana_with_handle)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(R.drawable.ic_katana_with_handle, getString(R.string.close), deletePendingIntent)
-            .setOngoing(true)
+            .addAction(
+                R.drawable.ic_katana_with_handle,
+                getString(R.string.close_notification),
+                closePendingIntent,
+            ).setOngoing(true)
             .setSilent(true)
             .build()
     }
@@ -189,7 +148,7 @@ class FlashlightForegroundService :
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel =
                 NotificationChannel(
-                    CHANNEL_ID,
+                    channelID,
                     "Flashlight Channel",
                     NotificationManager.IMPORTANCE_LOW,
                 ).apply {
@@ -200,17 +159,9 @@ class FlashlightForegroundService :
         }
     }
 
-    companion object {
-        private const val CHANNEL_ID = "ForegroundServiceChannel"
-        private val LOG_TAG: String = FlashlightForegroundService::class.java.getSimpleName()
-    }
-
     private lateinit var sensorManager: SensorManager
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var accelerometerSensor: Sensor? = null
-
-    private var cameraManager: CameraManager? = null
-    private var cameraId: String? = null
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (!isCallActive()) {
@@ -238,7 +189,9 @@ class FlashlightForegroundService :
                     serviceScope.launch {
                         if (avg >= applicationContext.state.first().sensitivity * 3 + 7) {
                             if (motionStep3) {
-                                toggleFlashlight()
+                                flashlightController.toggleFlashlight()
+                                if (applicationContext.state.first().vibrationOn) vibrationController.vibrate()
+
                                 motionStep1 = false
                                 motionStep2 = false
                                 motionStep3 = false
@@ -288,63 +241,30 @@ class FlashlightForegroundService :
         handler.postDelayed(motionReset3, 200)
     }
 
-    private fun hasFlashlightStrengthLevels(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val x: Int? =
-                cameraManager?.getCameraCharacteristics(cameraId!!)?.get(
-                    CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL,
-                )
-            if (x != null) {
-                if (x > 1) {
-                    return true
-                }
-            }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        handler.removeCallbacks(motionReset1)
+        handler.removeCallbacks(motionReset2)
+        handler.removeCallbacks(motionReset3)
+
+        // Unregister sensor listener
+        sensorManager.unregisterListener(this)
+
+        // Remove all pending callbacks
+        handler.removeCallbacksAndMessages(null)
+
+        // Safely release wake lock
+        if (wakeLock.isHeld) {
+            wakeLock.release()
         }
-        return false
-    }
 
-    private fun toggleFlashlight() {
-        serviceScope.launch {
-            val flashlightOn = applicationContext.state.first().flashlightOn
-            val vibrationOn = applicationContext.state.first().vibrationOn
-            val strength = applicationContext.state.first().strength
-            val hasStrengthLevels = hasFlashlightStrengthLevels()
+        // Ensure torch is off when service stops
+        flashlightController.turnOffFlashlight()
 
-            try {
-                if (flashlightOn) {
-                    // Turn off
-                    cameraManager?.setTorchMode(cameraId!!, false)
-                    Prefs.setFlashlightOn(applicationContext, false)
-                } else {
-                    // Turn on
-                    if (hasStrengthLevels && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        try {
-                            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, strength)
-                        } catch (e: IllegalArgumentException) {
-                            // fallback if unsupported
-                            cameraManager?.setTorchMode(cameraId!!, true)
-                            e.printStackTrace()
-                        }
-                    } else {
-                        cameraManager?.setTorchMode(cameraId!!, true)
-                    }
-                    Prefs.setFlashlightOn(applicationContext, true)
-                }
+        // Cancel all coroutines to avoid leaks
+        serviceScope.cancel()
 
-                if (vibrationOn) vibrate()
-            } catch (e: CameraAccessException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun vibrate() {
-        val v = ContextCompat.getSystemService(applicationContext, Vibrator::class.java) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            v.vibrate(300)
-        }
+        Log.d(logTag, "FlashlightForegroundService destroyed")
     }
 }
