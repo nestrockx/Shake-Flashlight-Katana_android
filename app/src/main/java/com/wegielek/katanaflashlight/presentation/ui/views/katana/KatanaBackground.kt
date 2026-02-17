@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.presentation.ui.views
+package com.wegielek.katanaflashlight.presentation.ui.views.katana
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.wegielek.katanaflashlight.R
 
 @Composable
-fun Wallpaper() {
+fun KatanaBackground() {
     Image(
         painter = painterResource(id = R.drawable.katana),
         contentDescription = stringResource(R.string.katana_background),

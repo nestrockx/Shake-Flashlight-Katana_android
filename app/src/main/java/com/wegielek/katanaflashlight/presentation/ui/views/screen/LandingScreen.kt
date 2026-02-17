@@ -1,10 +1,11 @@
-package com.wegielek.katanaflashlight.presentation.ui.views.landing
+package com.wegielek.katanaflashlight.presentation.ui.views.screen
 
 import android.Manifest
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -36,13 +39,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.wegielek.katanaflashlight.NewPrefs.introDone
-import com.wegielek.katanaflashlight.presentation.ui.views.Wallpaper
+import com.wegielek.katanaflashlight.Prefs.instructionExpired
+import com.wegielek.katanaflashlight.R
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaBackground
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaIconButton
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaImageButton
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaInstructionDialog
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaSlider
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaSwitch
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaTextButton
 import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -51,11 +63,13 @@ fun LandingScreen(
     viewModel: LandingViewModel = koinViewModel(),
     navigateToAbout: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val state by viewModel.uiState.collectAsState()
+
+    val instructionExpired by context.instructionExpired.collectAsState(initial = true)
+
     val oldAndroidInit by viewModel.olderAndroidInit.collectAsState()
     val oldAndroidClicked by viewModel.olderAndroidClicked.collectAsState()
-
-    val context = LocalContext.current
-    val introDone by context.introDone.collectAsState(initial = true)
 
     val configuration = LocalConfiguration.current
     val hasCameraPermission by viewModel.hasCameraPermission.collectAsState()
@@ -116,30 +130,46 @@ fun LandingScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.initialize()
+        viewModel.initialize(context)
+    }
+
+    LaunchedEffect(state) {
+        viewModel.saveState(context)
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.surface,
     ) {
-        Wallpaper()
+        KatanaBackground()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if (cameraRequested) {
-                IntroDialog(viewModel)
+                KatanaInstructionDialog(
+                    onInit = { viewModel.startService() },
+                    onConfirm = { viewModel.setInstructionExpired(true) },
+                )
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (notificationRequested) {
-                IntroDialog(viewModel)
+                KatanaInstructionDialog(
+                    onInit = { viewModel.startService() },
+                    onConfirm = { viewModel.setInstructionExpired(true) },
+                )
             }
         } else if (oldAndroidClicked) {
-            IntroDialog(viewModel)
-        } else if (!introDone) {
+            KatanaInstructionDialog(
+                onInit = { viewModel.startService() },
+                onConfirm = { viewModel.setInstructionExpired(true) },
+            )
+        } else if (!instructionExpired) {
             viewModel.setOldAndroidInit(true)
         }
         if (!oldAndroidInit) {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                MenuIcon(navigateToAbout)
+                KatanaIconButton(
+                    imageVector = Icons.Rounded.Menu,
+                    contentDescription = stringResource(R.string.menu_icon),
+                ) { navigateToAbout() }
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(
                         verticalArrangement = Arrangement.Center,
@@ -154,32 +184,76 @@ fun LandingScreen(
                         Spacer(modifier = Modifier.size(16.dp))
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                             if (!hasNotificationPermission || !hasCameraPermission) {
-                                RequestPermissionButton(
-                                    viewModel,
-                                    onClick = {
-                                        notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                    },
-                                )
+                                KatanaTextButton(stringResource(R.string.allow_notification))
+                                {
+                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                }
                             }
                         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             if (!hasNotificationPermission) {
-                                RequestPermissionButton(
-                                    viewModel,
-                                    onClick = {
-                                        notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                    },
-                                )
+                                KatanaTextButton(stringResource(R.string.allow_notification))
+                                {
+                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                }
                             }
                         }
-                        FlashlightStrengthSlider(viewModel)
+
+                        if (state.hasStrengthLevels) {
+                            KatanaSlider(
+                                stringResource(R.string.light_strength),
+                                state.strength.toFloat(),
+                                1f..state.maxStrength.toFloat(),
+                                (state.maxStrength - 2).coerceAtLeast(0),
+                            ) {
+                                viewModel.onStrengthChange(it.toInt())
+                            }
+                        }
+
                         Spacer(Modifier.padding(4.dp))
-                        OnOffSwitch(viewModel)
+                        KatanaSwitch(
+                            stringResource(R.string.on_off),
+                            state.katanaServiceOn,
+                        ) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && viewModel.hasCameraPermission() &&
+                                viewModel.hasNotificationPermission()
+                            ) {
+                                viewModel.onKatanaServiceSwitch(it)
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && viewModel.hasNotificationPermission()) {
+                                viewModel.onKatanaServiceSwitch(it)
+                            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                                viewModel.onKatanaServiceSwitch(it)
+                            } else {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        context.getString(R.string.lack_permissions),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                            }
+                        }
                         Spacer(Modifier.padding(4.dp))
-                        VibrationSwitch(viewModel)
+                        KatanaSwitch(
+                            stringResource(R.string.vibrations),
+                            state.vibrationOn,
+                        ) {
+                            viewModel.onVibrationSwitch(it)
+                        }
                         Spacer(Modifier.padding(4.dp))
-                        SlashSensitivity(viewModel)
+                        KatanaSlider(
+                            stringResource(R.string.slash_sensitivity),
+                            state.sensitivity,
+                            0f..10f,
+                            9,
+                        ) {
+                            viewModel.onSensitivityChange(it)
+                        }
                         Spacer(Modifier.padding(4.dp))
-                        FlashButton(viewModel)
+                        KatanaImageButton(
+                            painterResource(R.drawable.ic_katana_with_handle),
+                            contentDescription = stringResource(R.string.flash_button),
+                        ) {
+                            viewModel.toggleFlashlight()
+                        }
                         Spacer(modifier = Modifier.size(16.dp))
                     }
                 }
@@ -194,7 +268,7 @@ fun LandingScreen(
                         ),
                 ) {
                     Text(
-                        text = "Start",
+                        text = stringResource(R.string.start),
                         fontSize = 20.sp,
                         color = Color.White,
                         modifier = Modifier.padding(8.dp),

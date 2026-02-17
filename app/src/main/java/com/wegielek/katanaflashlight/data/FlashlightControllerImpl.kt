@@ -7,7 +7,7 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import com.wegielek.katanaflashlight.domain.FlashlightController
 
-class AndroidFlashlightController(
+class FlashlightControllerImpl(
     private val context: Context,
 ) : FlashlightController {
     private var cameraManager: CameraManager? = null

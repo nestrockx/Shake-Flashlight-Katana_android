@@ -27,11 +27,8 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.wegielek.katanaflashlight.MainActivity
-import com.wegielek.katanaflashlight.NewPrefs
-import com.wegielek.katanaflashlight.NewPrefs.flashOn
-import com.wegielek.katanaflashlight.NewPrefs.sensitivity
-import com.wegielek.katanaflashlight.NewPrefs.strength
-import com.wegielek.katanaflashlight.NewPrefs.vibrationOn
+import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.Prefs.state
 import com.wegielek.katanaflashlight.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +76,7 @@ class FlashlightForegroundService :
         if (intent?.extras?.getInt("close") == 1) {
             Toast.makeText(this, getString(R.string.katana_dismissed), Toast.LENGTH_SHORT).show()
             serviceScope.launch {
-                NewPrefs.setKatanaOn(applicationContext, false)
+                Prefs.setKatanaServiceRunning(applicationContext, false)
             }
             stopSelf()
         }
@@ -132,7 +129,7 @@ class FlashlightForegroundService :
         serviceScope.launch {
             try {
                 cameraManager?.setTorchMode(cameraId ?: return@launch, false)
-                NewPrefs.setFlashOn(applicationContext, false)
+                Prefs.setFlashlightOn(applicationContext, false)
             } catch (e: Exception) {
                 Log.e(LOG_TAG, "Failed to turn off torch in onDestroy", e)
             }
@@ -140,7 +137,7 @@ class FlashlightForegroundService :
 
         // Reset katana state
         serviceScope.launch {
-            NewPrefs.setKatanaOn(applicationContext, false)
+            Prefs.setKatanaServiceRunning(applicationContext, false)
         }
 
         // Cancel all coroutines to avoid leaks
@@ -239,7 +236,7 @@ class FlashlightForegroundService :
 
                 if (!coolDown) {
                     serviceScope.launch {
-                        if (avg >= applicationContext.sensitivity.first() * 3 + 7) {
+                        if (avg >= applicationContext.state.first().sensitivity * 3 + 7) {
                             if (motionStep3) {
                                 toggleFlashlight()
                                 motionStep1 = false
@@ -308,16 +305,16 @@ class FlashlightForegroundService :
 
     private fun toggleFlashlight() {
         serviceScope.launch {
-            val flashOn = applicationContext.flashOn.first()
-            val vibrationOn = applicationContext.vibrationOn.first()
-            val strength = applicationContext.strength.first()
+            val flashlightOn = applicationContext.state.first().flashlightOn
+            val vibrationOn = applicationContext.state.first().vibrationOn
+            val strength = applicationContext.state.first().strength
             val hasStrengthLevels = hasFlashlightStrengthLevels()
 
             try {
-                if (flashOn) {
+                if (flashlightOn) {
                     // Turn off
                     cameraManager?.setTorchMode(cameraId!!, false)
-                    NewPrefs.setFlashOn(applicationContext, false)
+                    Prefs.setFlashlightOn(applicationContext, false)
                 } else {
                     // Turn on
                     if (hasStrengthLevels && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -331,7 +328,7 @@ class FlashlightForegroundService :
                     } else {
                         cameraManager?.setTorchMode(cameraId!!, true)
                     }
-                    NewPrefs.setFlashOn(applicationContext, true)
+                    Prefs.setFlashlightOn(applicationContext, true)
                 }
 
                 if (vibrationOn) vibrate()

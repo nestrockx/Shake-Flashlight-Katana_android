@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat
 import com.wegielek.katanaflashlight.domain.ServiceController
 import com.wegielek.katanaflashlight.service.FlashlightForegroundService
 
-class AndroidServiceController(
+class ServiceControllerImpl(
     private val context: Context,
 ) : ServiceController {
     override fun startFlashlightService() {

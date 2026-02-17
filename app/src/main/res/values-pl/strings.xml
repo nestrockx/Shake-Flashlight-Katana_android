@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">Wersja 2.0.0</string>
+    <string name="version">Wersja 2.0.3</string>
     <string name="app_name">Katana Latarka</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_sensitivity">Czułość potrząśnięcia</string>
@@ -24,4 +24,6 @@
     <string name="back_button">Przycisk cofania</string>
     <string name="slash_animation">Animacja cięcia</string>
     <string name="slash_animation_value">Wartość animacji cięcia</string>
+    <string name="start">Start</string>
+    <string name="understand">Ok</string>
 </resources>

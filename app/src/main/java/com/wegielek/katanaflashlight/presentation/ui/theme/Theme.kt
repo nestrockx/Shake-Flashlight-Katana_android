@@ -16,16 +16,22 @@ import androidx.core.view.WindowCompat
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = Black,
+        primary = LightRed,
+        primaryContainer = DarkRed,
         secondary = White,
         tertiary = Grey,
+        onSurface = White,
+        surface = Black,
     )
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = Black,
+        primary = LightRed,
+        primaryContainer = DarkRed,
         secondary = White,
         tertiary = Grey,
+        onSurface = White,
+        surface = Black,
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -51,8 +57,13 @@ fun KatanaFlashlightTheme(
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             }
 
-            darkTheme -> DarkColorScheme
-            else -> LightColorScheme
+            darkTheme -> {
+                DarkColorScheme
+            }
+
+            else -> {
+                LightColorScheme
+            }
         }
     val view = LocalView.current
 

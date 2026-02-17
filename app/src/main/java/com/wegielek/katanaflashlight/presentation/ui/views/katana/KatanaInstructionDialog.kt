@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.presentation.ui.views.landing
+package com.wegielek.katanaflashlight.presentation.ui.views.katana
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -33,19 +32,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.wegielek.katanaflashlight.NewPrefs
-import com.wegielek.katanaflashlight.NewPrefs.introDone
+import com.wegielek.katanaflashlight.Prefs.instructionExpired
 import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntroDialog(viewModel: LandingViewModel) {
-    val scope = rememberCoroutineScope()
-
+fun KatanaInstructionDialog(
+    onInit: () -> Unit,
+    onConfirm: () -> Unit,
+) {
     val context = LocalContext.current
-    val introDone by context.introDone.collectAsState(initial = true)
+    val instructionExpired by context.instructionExpired.collectAsState(initial = true)
 
     val value by rememberInfiniteTransition(label = "slash animation").animateFloat(
         initialValue = 25f,
@@ -63,15 +60,12 @@ fun IntroDialog(viewModel: LandingViewModel) {
     )
 
     LaunchedEffect(Unit) {
-        viewModel.startService()
+        onInit()
     }
 
-    if (!introDone) {
+    if (!instructionExpired) {
         BasicAlertDialog(
             onDismissRequest = {
-                scope.launch {
-                    NewPrefs.setIntroDone(context, true)
-                }
             },
         ) {
             Surface(
@@ -79,6 +73,7 @@ fun IntroDialog(viewModel: LandingViewModel) {
                     Modifier
                         .wrapContentWidth()
                         .wrapContentHeight(),
+                color = MaterialTheme.colorScheme.surface,
                 shape = MaterialTheme.shapes.large,
             ) {
                 Column(
@@ -102,7 +97,24 @@ fun IntroDialog(viewModel: LandingViewModel) {
                                 ),
                     )
                     Spacer(modifier = Modifier.size(10.dp))
-                    Text(text = stringResource(R.string.instruction), textAlign = TextAlign.Center)
+                    Text(
+                        text = stringResource(R.string.instruction),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                    )
+
+                    Spacer(modifier = Modifier.size(20.dp))
+
+                    KatanaTextButton(stringResource(R.string.understand)) {
+                        onConfirm()
+                    }
+//                    TextButton(
+//                        onClick = {
+//                            onConfirm()
+//                        },
+//                    ) {
+//                        Text(text = "Understand")
+//                    }
                 }
             }
         }

@@ -7,7 +7,7 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import com.wegielek.katanaflashlight.domain.PermissionChecker
 
-class AndroidPermissionChecker(
+class PermissionCheckerImpl(
     private val context: Context,
 ) : PermissionChecker {
     override fun hasCameraPermission(): Boolean =

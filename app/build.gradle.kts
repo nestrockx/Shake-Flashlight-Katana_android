@@ -17,7 +17,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 15
-        versionName = "2.0.2"
+        versionName = "2.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -86,9 +86,6 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
-
-    // Liquid Glass
-//    implementation("com.github.Kyant0:AndroidLiquidGlass:1.0.0-rc01")
 
     // Data Store
     implementation(libs.androidx.datastore.preferences)

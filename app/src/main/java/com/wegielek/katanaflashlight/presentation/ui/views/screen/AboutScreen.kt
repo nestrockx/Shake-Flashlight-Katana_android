@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.presentation.ui.views.about
+package com.wegielek.katanaflashlight.presentation.ui.views.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,15 +25,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.presentation.ui.views.Wallpaper
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.HyperlinkText
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaBackground
 
 @Composable
 fun AboutScreen(navigateToLanding: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.surface,
     ) {
-        Wallpaper()
+        KatanaBackground()
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -67,7 +68,7 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                             .padding(16.dp)
                             .fillMaxWidth(),
                     fontSize = 16.sp,
-                    linkTextColor = Color(1.0f, 0.44313726f, 0.44313726f, 1.0f),
+                    linkTextColor = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = stringResource(R.string.version),

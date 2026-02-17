@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.presentation.ui.views.landing
+package com.wegielek.katanaflashlight.presentation.ui.views.katana
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,32 +8,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wegielek.katanaflashlight.NewPrefs.sensitivity
-import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
-fun SlashSensitivity(viewModel: LandingViewModel) {
-    val context = LocalContext.current
-    val sensitivity by context.sensitivity.collectAsState(initial = 1f)
-
+fun KatanaSlider(
+    name: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    onValueChange: (Float) -> Unit,
+) {
     Text(
-        text = stringResource(R.string.slash_sensitivity),
+        text = name,
         color = Color.White,
         fontSize = 20.sp,
         textAlign = TextAlign.Left,
@@ -46,28 +43,27 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(60.dp) // slightly taller for breathing space
+                .height(60.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(1f, 1f, 1f, 0.75f))
-                .padding(horizontal = 16.dp, vertical = 8.dp), // padding inside box
+                .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Slider(
-            value = sensitivity,
-            onValueChange = { viewModel.onSensitivityChange(it) },
-            valueRange = 0f..10f,
-            steps = 9,
+            value = value,
+            onValueChange = { onValueChange(it) },
+            valueRange = valueRange,
+            steps = steps,
             enabled = true,
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .align(Alignment.Center),
-            // center slider inside the box
             colors =
                 SliderDefaults.colors(
-                    thumbColor = Color.Red,
-                    activeTrackColor = Color(0xFFEF5350),
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    activeTrackColor = MaterialTheme.colorScheme.primary,
                     inactiveTrackColor = Color(0xFFBDBDBD),
-                    activeTickColor = Color.White,
+                    activeTickColor = MaterialTheme.colorScheme.primaryContainer,
                     inactiveTickColor = Color.Gray,
                 ),
         )

@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.presentation.ui.views.landing
+package com.wegielek.katanaflashlight.presentation.ui.views.katana
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
@@ -9,18 +9,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
-fun RequestPermissionButton(
-    viewModel: LandingViewModel,
+fun KatanaTextButton(
+    text: String,
     onClick: () -> Unit,
 ) {
-    Button(onClick = onClick, border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)) {
-        Text(text = stringResource(R.string.allow_notification), color = Color.White)
+    Button(
+        onClick = onClick,
+        border =
+            BorderStroke(
+                1.dp,
+                MaterialTheme.colorScheme.tertiary,
+            ),
+    ) {
+        Text(text = text, color = Color.White)
     }
     Spacer(modifier = Modifier.size(10.dp))
 }
