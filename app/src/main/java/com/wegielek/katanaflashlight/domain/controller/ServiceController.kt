@@ -6,4 +6,14 @@ interface ServiceController {
     fun stopFlashlightService()
 
     fun isFlashlightServiceRunning(): Boolean
+
+    fun onServiceStarted()
+
+    fun onServiceStopped()
+
+    fun onAcceleration(
+        x: Float,
+        y: Float,
+        z: Float,
+    )
 }

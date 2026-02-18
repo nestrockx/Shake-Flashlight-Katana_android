@@ -5,11 +5,24 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
+import com.wegielek.katanaflashlight.domain.usecase.KeepCpuAwakeUseCase
+import com.wegielek.katanaflashlight.domain.usecase.SlashDetectionUseCase
+import com.wegielek.katanaflashlight.domain.usecase.TurnOffFlashlightUseCase
 import com.wegielek.katanaflashlight.service.FlashlightForegroundService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class ServiceControllerImpl(
     private val context: Context,
+    private val keepCpuAwake: KeepCpuAwakeUseCase,
+    private val slashDetection: SlashDetectionUseCase,
+    private val turnOffFlashlight: TurnOffFlashlightUseCase,
 ) : ServiceController {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     override fun startFlashlightService() {
         if (isFlashlightServiceRunning()) return
 
@@ -33,9 +46,29 @@ class ServiceControllerImpl(
                     return true
                 }
             }
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             // ignore
         }
         return false
+    }
+
+    override fun onServiceStarted() {
+        keepCpuAwake(true)
+    }
+
+    override fun onServiceStopped() {
+        keepCpuAwake(false)
+        turnOffFlashlight()
+        scope.cancel()
+    }
+
+    override fun onAcceleration(
+        x: Float,
+        y: Float,
+        z: Float,
+    ) {
+        scope.launch {
+            slashDetection(x, y, z)
+        }
     }
 }

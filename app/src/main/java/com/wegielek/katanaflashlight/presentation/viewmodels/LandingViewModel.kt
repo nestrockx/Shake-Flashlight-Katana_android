@@ -3,11 +3,11 @@ package com.wegielek.katanaflashlight.presentation.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wegielek.katanaflashlight.data.Prefs
+import com.wegielek.katanaflashlight.data.Prefs.state
 import com.wegielek.katanaflashlight.domain.controller.FlashlightController
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import com.wegielek.katanaflashlight.domain.repository.PermissionsRepository
-import com.wegielek.katanaflashlight.preferences.Prefs
-import com.wegielek.katanaflashlight.preferences.Prefs.state
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first

@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.data.manager
+package com.wegielek.katanaflashlight.data.wakelock
 
 import android.content.Context
 import android.os.PowerManager

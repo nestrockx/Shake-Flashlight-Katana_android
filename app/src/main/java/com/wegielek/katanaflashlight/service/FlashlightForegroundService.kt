@@ -6,11 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import android.media.AudioManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -18,46 +13,26 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.wegielek.katanaflashlight.MainActivity
 import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.domain.detector.SlashDetector
-import com.wegielek.katanaflashlight.domain.usecase.KeepCpuAwakeUseCase
-import com.wegielek.katanaflashlight.domain.usecase.ToggleFlashlightUseCase
-import com.wegielek.katanaflashlight.domain.usecase.TurnOffFlashlightUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import com.wegielek.katanaflashlight.data.sensor.LinearAccelerationSensor
+import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+private const val CHANNEL_ID = "ForegroundServiceChannel"
+private const val LOG_TAG = "FlashlightForegroundService"
+
 class FlashlightForegroundService :
     Service(),
-    SensorEventListener,
     KoinComponent {
-    private val channelID = "ForegroundServiceChannel"
-    private val logTag: String = FlashlightForegroundService::class.java.getSimpleName()
+    private val controller: ServiceController by inject()
 
-    private val turnOffFlashlightUseCase: TurnOffFlashlightUseCase by inject()
-    private val toggleFlashlightUseCase: ToggleFlashlightUseCase by inject()
-    private val keepCpuAwakeUseCase: KeepCpuAwakeUseCase by inject()
-
-    private val slashDetector: SlashDetector by inject()
-
-    private val serviceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(Dispatchers.Default + serviceJob)
-
-    private fun isCallActive(): Boolean {
-        val manager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
-        return manager.mode == AudioManager.MODE_IN_CALL
-    }
+    private lateinit var sensor: LinearAccelerationSensor
 
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
         startId: Int,
     ): Int {
-        keepCpuAwakeUseCase(true)
-
         if (intent?.extras?.getInt("close") == 1) {
             Toast
                 .makeText(
@@ -68,16 +43,14 @@ class FlashlightForegroundService :
             stopSelf()
         }
 
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        controller.onServiceStarted()
 
-        accelerometerSensor?.let {
-            sensorManager.registerListener(
-                this,
-                it,
-                SensorManager.SENSOR_DELAY_NORMAL,
-            )
-        }
+        sensor =
+            LinearAccelerationSensor(this) { x, y, z ->
+                controller.onAcceleration(x, y, z)
+            }
+
+        sensor.start()
 
         startForegroundService()
         return START_STICKY
@@ -111,7 +84,7 @@ class FlashlightForegroundService :
             )
 
         return NotificationCompat
-            .Builder(this, channelID)
+            .Builder(this, CHANNEL_ID)
             .setContentText(getString(R.string.katana_is_running))
             .setContentIntent(pendingNotificationIntent)
             .setSmallIcon(R.drawable.ic_katana_with_handle)
@@ -129,7 +102,7 @@ class FlashlightForegroundService :
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel =
                 NotificationChannel(
-                    channelID,
+                    CHANNEL_ID,
                     "Flashlight Channel",
                     NotificationManager.IMPORTANCE_LOW,
                 ).apply {
@@ -140,51 +113,14 @@ class FlashlightForegroundService :
         }
     }
 
-    private lateinit var sensorManager: SensorManager
-    private var accelerometerSensor: Sensor? = null
-
-    override fun onSensorChanged(event: SensorEvent?) {
-        if (event?.sensor?.type != Sensor.TYPE_LINEAR_ACCELERATION) return
-
-        if (!isCallActive()) {
-            val slashDetected =
-                slashDetector.onAcceleration(
-                    event.values[0],
-                    event.values[1],
-                    event.values[2],
-                )
-
-            if (slashDetected) {
-                serviceScope.launch {
-                    toggleFlashlightUseCase()
-                }
-            }
-        }
-    }
-
     override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onAccuracyChanged(
-        sensor: Sensor?,
-        accuracy: Int,
-    ) {
-    }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        // Unregister sensor listener
-        sensorManager.unregisterListener(this)
+        sensor.stop()
+        controller.onServiceStopped()
 
-        // Safely release wake lock
-        keepCpuAwakeUseCase(false)
-
-        // Ensure torch is off when service stops
-        turnOffFlashlightUseCase()
-
-        // Cancel all coroutines to avoid leaks
-        serviceScope.cancel()
-
-        Log.d(logTag, "FlashlightForegroundService destroyed")
+        Log.d(LOG_TAG, "Foreground Service destroyed")
     }
 }

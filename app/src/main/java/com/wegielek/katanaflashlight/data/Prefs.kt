@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.preferences
+package com.wegielek.katanaflashlight.data
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
