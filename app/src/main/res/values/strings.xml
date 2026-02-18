@@ -5,7 +5,7 @@
     <string name="title_activity_main">Katana</string>
     <string name="slash_sensitivity">Shake sensitivity</string>
     <string name="katana_is_running">Phone shake detection is running</string>
-    <string name="katana_dismissed">Katana detection shut down</string>
+    <string name="katana_dismissed">Shake detection stopped</string>
     <string name="vibrations">Vibrations</string>
     <string name="flashlight_not_available">Flashlight not available</string>
     <string name="light_strength">Flash brightness</string>

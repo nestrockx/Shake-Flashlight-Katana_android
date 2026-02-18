@@ -1,15 +1,15 @@
-package com.wegielek.katanaflashlight.data
+package com.wegielek.katanaflashlight.data.repository
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
-import com.wegielek.katanaflashlight.domain.controller.PermissionsController
+import com.wegielek.katanaflashlight.domain.repository.PermissionsRepository
 
-class PermissionsControllerImpl(
+class PermissionsRepositoryImpl(
     private val context: Context,
-) : PermissionsController {
+) : PermissionsRepository {
     override fun hasCameraPermission(): Boolean =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==

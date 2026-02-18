@@ -212,7 +212,7 @@ fun LandingScreen(
                         Spacer(Modifier.padding(4.dp))
                         KatanaSwitch(
                             stringResource(R.string.on_off),
-                            state.katanaServiceOn,
+                            state.katanaServiceRunning,
                         ) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                                 hasCameraPermission &&
@@ -237,7 +237,7 @@ fun LandingScreen(
                         Spacer(Modifier.padding(4.dp))
                         KatanaSwitch(
                             stringResource(R.string.vibrations),
-                            state.vibrationOn,
+                            state.vibrationEnabled,
                         ) {
                             viewModel.onVibrationSwitch(it)
                         }

@@ -5,7 +5,7 @@
     <string name="title_activity_main">Katana</string>
     <string name="slash_sensitivity">Czułość potrząśnięcia</string>
     <string name="katana_is_running">Wykrywanie potrząśnięć telefonu jest włączone</string>
-    <string name="katana_dismissed">Wykrywanie potrząśnięć zostało wyłączone</string>
+    <string name="katana_dismissed">Wykrywanie potrząśnięć zatrzymane</string>
     <string name="vibrations">Wibracje</string>
     <string name="flashlight_not_available">Latarka niedostępna</string>
     <string name="light_strength">Jasność latarki</string>

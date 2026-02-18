@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.data
+package com.wegielek.katanaflashlight.data.controller
 
 import android.content.Context
 import android.content.pm.PackageManager

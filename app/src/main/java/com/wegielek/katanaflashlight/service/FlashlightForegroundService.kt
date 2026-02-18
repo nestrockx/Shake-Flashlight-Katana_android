@@ -12,29 +12,23 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.AudioManager
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
-import android.os.PowerManager
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.wegielek.katanaflashlight.MainActivity
-import com.wegielek.katanaflashlight.Prefs.state
 import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.domain.controller.FlashlightController
-import com.wegielek.katanaflashlight.domain.controller.VibrationController
+import com.wegielek.katanaflashlight.domain.detector.SlashDetector
+import com.wegielek.katanaflashlight.domain.usecase.KeepCpuAwakeUseCase
+import com.wegielek.katanaflashlight.domain.usecase.ToggleFlashlightUseCase
+import com.wegielek.katanaflashlight.domain.usecase.TurnOffFlashlightUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.getValue
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 class FlashlightForegroundService :
     Service(),
@@ -43,10 +37,11 @@ class FlashlightForegroundService :
     private val channelID = "ForegroundServiceChannel"
     private val logTag: String = FlashlightForegroundService::class.java.getSimpleName()
 
-    private val flashlightController: FlashlightController by inject()
-    private val vibrationController: VibrationController by inject()
+    private val turnOffFlashlightUseCase: TurnOffFlashlightUseCase by inject()
+    private val toggleFlashlightUseCase: ToggleFlashlightUseCase by inject()
+    private val keepCpuAwakeUseCase: KeepCpuAwakeUseCase by inject()
 
-    private lateinit var wakeLock: PowerManager.WakeLock
+    private val slashDetector: SlashDetector by inject()
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Default + serviceJob)
@@ -56,26 +51,12 @@ class FlashlightForegroundService :
         return manager.mode == AudioManager.MODE_IN_CALL
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    private fun acquire(): Runnable =
-        Runnable {
-            wakeLock.acquire(10 * 60 * 1000L)
-            handler.postDelayed(acquire(), 10 * 60 * 1000L)
-        }
-
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
         startId: Int,
     ): Int {
-        val powerManager = applicationContext.getSystemService(POWER_SERVICE) as PowerManager
-        wakeLock =
-            powerManager.newWakeLock(
-                PowerManager.PARTIAL_WAKE_LOCK,
-                logTag,
-            )
-        handler.post(acquire())
+        keepCpuAwakeUseCase(true)
 
         if (intent?.extras?.getInt("close") == 1) {
             Toast
@@ -160,56 +141,28 @@ class FlashlightForegroundService :
     }
 
     private lateinit var sensorManager: SensorManager
-    private val handler: Handler = Handler(Looper.getMainLooper())
     private var accelerometerSensor: Sensor? = null
 
     override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type != Sensor.TYPE_LINEAR_ACCELERATION) return
+
         if (!isCallActive()) {
-            if (event?.sensor?.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-                val alpha = 0.8f
-                val gravity = FloatArray(3)
-                val linearAccelerationResult = FloatArray(3)
+            val slashDetected =
+                slashDetector.onAcceleration(
+                    event.values[0],
+                    event.values[1],
+                    event.values[2],
+                )
 
-                gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0]
-                gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1]
-                gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2]
-
-                linearAccelerationResult[0] = event.values[0] - gravity[0]
-                linearAccelerationResult[1] = event.values[1] - gravity[1]
-                linearAccelerationResult[2] = event.values[2] - gravity[2]
-
-                val x = linearAccelerationResult[0]
-                val y = linearAccelerationResult[1]
-                val z = linearAccelerationResult[2]
-
-                val avg = sqrt(x.pow(2) + y.pow(2))
-                Log.i("Sensor data:", "linear acceleration: $x $y $z")
-
-                if (!coolDown) {
-                    serviceScope.launch {
-                        if (avg >= applicationContext.state.first().sensitivity * 3 + 7) {
-                            if (motionStep3) {
-                                flashlightController.toggleFlashlight()
-                                if (applicationContext.state.first().vibrationOn) vibrationController.vibrate()
-
-                                motionStep1 = false
-                                motionStep2 = false
-                                motionStep3 = false
-                                coolDown = true
-                                handler.postDelayed({ coolDown = false }, 500)
-                            } else if (motionStep2) {
-                                handler.postDelayed({ triggerMotionStepThree() }, 150)
-                            } else if (motionStep1) {
-                                handler.postDelayed({ triggerMotionStepTwo() }, 150)
-                            } else {
-                                triggerMotionStepOne()
-                            }
-                        }
-                    }
+            if (slashDetected) {
+                serviceScope.launch {
+                    toggleFlashlightUseCase()
                 }
             }
         }
     }
+
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onAccuracyChanged(
         sensor: Sensor?,
@@ -217,50 +170,17 @@ class FlashlightForegroundService :
     ) {
     }
 
-    private var coolDown: Boolean = false
-    private var motionStep1: Boolean = false
-    private var motionStep2: Boolean = false
-    private var motionStep3: Boolean = false
-
-    private val motionReset1 = Runnable { motionStep1 = false }
-    private val motionReset2 = Runnable { motionStep2 = false }
-    private val motionReset3 = Runnable { motionStep3 = false }
-
-    private fun triggerMotionStepOne() {
-        motionStep1 = true
-        handler.postDelayed(motionReset1, 200)
-    }
-
-    private fun triggerMotionStepTwo() {
-        motionStep2 = true
-        handler.postDelayed(motionReset2, 200)
-    }
-
-    private fun triggerMotionStepThree() {
-        motionStep3 = true
-        handler.postDelayed(motionReset3, 200)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-
-        handler.removeCallbacks(motionReset1)
-        handler.removeCallbacks(motionReset2)
-        handler.removeCallbacks(motionReset3)
 
         // Unregister sensor listener
         sensorManager.unregisterListener(this)
 
-        // Remove all pending callbacks
-        handler.removeCallbacksAndMessages(null)
-
         // Safely release wake lock
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
+        keepCpuAwakeUseCase(false)
 
         // Ensure torch is off when service stops
-        flashlightController.turnOffFlashlight()
+        turnOffFlashlightUseCase()
 
         // Cancel all coroutines to avoid leaks
         serviceScope.cancel()

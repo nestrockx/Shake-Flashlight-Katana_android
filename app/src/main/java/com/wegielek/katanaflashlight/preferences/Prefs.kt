@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight
+package com.wegielek.katanaflashlight.preferences
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -30,9 +30,9 @@ object Prefs {
             dataStore.data.map {
                 UiState.Settings(
                     sensitivity = it[SENSITIVITY_KEY] ?: 5f,
-                    flashlightOn = it[FLASH_KEY] ?: false,
-                    vibrationOn = it[VIBRATION_KEY] ?: true,
-                    katanaServiceOn = it[KATANA_KEY] ?: false,
+                    flashlightEnabled = it[FLASH_KEY] ?: false,
+                    vibrationEnabled = it[VIBRATION_KEY] ?: true,
+                    katanaServiceRunning = it[KATANA_KEY] ?: false,
                     strength = it[STRENGTH_KEY] ?: (it[MAX_STRENGTH_KEY] ?: 1),
                     maxStrength = it[MAX_STRENGTH_KEY] ?: 1,
                     hasStrengthLevels = it[HAS_STRENGTH_LEVELS_KEY] ?: false,
@@ -46,9 +46,9 @@ object Prefs {
     ) {
         context.dataStore.edit {
             it[SENSITIVITY_KEY] = state.sensitivity
-            it[FLASH_KEY] = state.flashlightOn
-            it[VIBRATION_KEY] = state.vibrationOn
-            it[KATANA_KEY] = state.katanaServiceOn
+            it[FLASH_KEY] = state.flashlightEnabled
+            it[VIBRATION_KEY] = state.vibrationEnabled
+            it[KATANA_KEY] = state.katanaServiceRunning
             it[STRENGTH_KEY] = state.strength
             it[MAX_STRENGTH_KEY] = state.maxStrength
             it[HAS_STRENGTH_LEVELS_KEY] = state.hasStrengthLevels

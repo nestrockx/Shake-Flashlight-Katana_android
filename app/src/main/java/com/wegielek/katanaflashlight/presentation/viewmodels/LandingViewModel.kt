@@ -3,11 +3,11 @@ package com.wegielek.katanaflashlight.presentation.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wegielek.katanaflashlight.Prefs
-import com.wegielek.katanaflashlight.Prefs.state
 import com.wegielek.katanaflashlight.domain.controller.FlashlightController
-import com.wegielek.katanaflashlight.domain.controller.PermissionsController
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
+import com.wegielek.katanaflashlight.domain.repository.PermissionsRepository
+import com.wegielek.katanaflashlight.preferences.Prefs
+import com.wegielek.katanaflashlight.preferences.Prefs.state
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 sealed class UiState {
     data class Settings(
         val sensitivity: Float,
-        val flashlightOn: Boolean,
-        val vibrationOn: Boolean,
-        val katanaServiceOn: Boolean,
+        val flashlightEnabled: Boolean,
+        val vibrationEnabled: Boolean,
+        val katanaServiceRunning: Boolean,
         val strength: Int,
         val maxStrength: Int,
         val hasStrengthLevels: Boolean,
@@ -29,16 +29,16 @@ sealed class UiState {
 class LandingViewModel(
     private val appContext: Context,
     private val service: ServiceController,
-    private val permissions: PermissionsController,
+    private val permissions: PermissionsRepository,
     private val flashlightController: FlashlightController,
 ) : ViewModel() {
     private val _uiState =
         MutableStateFlow(
             UiState.Settings(
                 sensitivity = 5f,
-                flashlightOn = false,
-                vibrationOn = true,
-                katanaServiceOn = false,
+                flashlightEnabled = false,
+                vibrationEnabled = true,
+                katanaServiceRunning = false,
                 strength = 1,
                 maxStrength = 1,
                 hasStrengthLevels = false,
@@ -74,14 +74,14 @@ class LandingViewModel(
 
     fun startService() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(katanaServiceOn = true)
+            _uiState.value = _uiState.value.copy(katanaServiceRunning = true)
             service.startFlashlightService()
         }
     }
 
     fun stopService() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(katanaServiceOn = false)
+            _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
             service.stopFlashlightService()
         }
     }
@@ -95,7 +95,7 @@ class LandingViewModel(
             _uiState.value = context.state.first()
             _uiState.value = _uiState.value.copy(hasStrengthLevels = flashlightController.hasStrengthLevels())
             _uiState.value = _uiState.value.copy(maxStrength = flashlightController.getMaxStrengthLevel())
-            _uiState.value = _uiState.value.copy(katanaServiceOn = service.isFlashlightServiceRunning())
+            _uiState.value = _uiState.value.copy(katanaServiceRunning = service.isFlashlightServiceRunning())
         }
     }
 
@@ -103,9 +103,9 @@ class LandingViewModel(
 
     fun toggleFlashlight() {
         viewModelScope.launch {
-            val flashOn = appContext.state.first().flashlightOn
+            val flashOn = appContext.state.first().flashlightEnabled
             flashlightController.toggleFlashlight()
-            _uiState.value = _uiState.value.copy(flashlightOn = !flashOn)
+            _uiState.value = _uiState.value.copy(flashlightEnabled = !flashOn)
         }
     }
 
@@ -124,7 +124,7 @@ class LandingViewModel(
 
     fun onVibrationSwitch(enabled: Boolean) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(vibrationOn = enabled)
+            _uiState.value = _uiState.value.copy(vibrationEnabled = enabled)
         }
     }
 
