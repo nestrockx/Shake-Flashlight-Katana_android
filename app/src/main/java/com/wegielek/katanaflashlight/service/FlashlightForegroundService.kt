@@ -25,7 +25,6 @@ class FlashlightForegroundService :
     Service(),
     KoinComponent {
     private val controller: ServiceController by inject()
-
     private lateinit var sensor: LinearAccelerationSensor
 
     override fun onStartCommand(
@@ -49,7 +48,6 @@ class FlashlightForegroundService :
             LinearAccelerationSensor(this) { x, y, z ->
                 controller.onAcceleration(x, y, z)
             }
-
         sensor.start()
 
         startForegroundService()
@@ -59,6 +57,21 @@ class FlashlightForegroundService :
     private fun startForegroundService() {
         val notification = createNotification()
         startForeground(1, notification)
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val serviceChannel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "Flashlight Channel",
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                }
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(serviceChannel)
+        }
     }
 
     private fun createNotification(): Notification {
@@ -96,21 +109,6 @@ class FlashlightForegroundService :
             ).setOngoing(true)
             .setSilent(true)
             .build()
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel =
-                NotificationChannel(
-                    CHANNEL_ID,
-                    "Flashlight Channel",
-                    NotificationManager.IMPORTANCE_LOW,
-                ).apply {
-                    setShowBadge(false)
-                }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
-        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
