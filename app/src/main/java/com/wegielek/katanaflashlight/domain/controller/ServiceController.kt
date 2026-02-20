@@ -1,6 +1,10 @@
 package com.wegielek.katanaflashlight.domain.controller
 
+import kotlinx.coroutines.flow.StateFlow
+
 interface ServiceController {
+    val isRunning: StateFlow<Boolean>
+
     fun startFlashlightService()
 
     fun stopFlashlightService()

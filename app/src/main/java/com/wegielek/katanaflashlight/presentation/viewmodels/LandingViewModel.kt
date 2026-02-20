@@ -32,6 +32,8 @@ class LandingViewModel(
     private val permissions: PermissionsRepository,
     private val flashlightController: FlashlightController,
 ) : ViewModel() {
+    val isServiceRunning = service.isRunning
+
     private val _uiState =
         MutableStateFlow(
             UiState.Settings(
@@ -144,6 +146,12 @@ class LandingViewModel(
 
     fun setInstructionExpired(value: Boolean) {
         _uiState.value = _uiState.value.copy(instructionExpired = value)
+    }
+
+    fun monitorServiceShutdown(running: Boolean) {
+        if (!running) {
+            _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
+        }
     }
 
     override fun onCleared() {

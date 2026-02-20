@@ -49,6 +49,7 @@ class FlashlightForegroundService :
                     getString(R.string.katana_dismissed),
                     Toast.LENGTH_SHORT,
                 ).show()
+
             stopSelf()
         }
 
@@ -89,7 +90,11 @@ class FlashlightForegroundService :
     private fun createNotification(): Notification {
         createNotificationChannel()
 
-        val notificationIntent = Intent(this, MainActivity::class.java)
+        val notificationIntent =
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
         val pendingNotificationIntent =
             PendingIntent.getActivity(
                 this,

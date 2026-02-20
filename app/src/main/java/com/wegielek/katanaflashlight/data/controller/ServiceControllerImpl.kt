@@ -9,11 +9,8 @@ import com.wegielek.katanaflashlight.domain.usecase.KeepCpuAwakeUseCase
 import com.wegielek.katanaflashlight.domain.usecase.SlashDetectionUseCase
 import com.wegielek.katanaflashlight.domain.usecase.TurnOffFlashlightUseCase
 import com.wegielek.katanaflashlight.service.FlashlightForegroundService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class ServiceControllerImpl(
     private val context: Context,
@@ -21,6 +18,9 @@ class ServiceControllerImpl(
     private val slashDetection: SlashDetectionUseCase,
     private val turnOffFlashlight: TurnOffFlashlightUseCase,
 ) : ServiceController {
+    private val _isRunning = MutableStateFlow(false)
+    override val isRunning: StateFlow<Boolean> = _isRunning
+
     override fun startFlashlightService() {
         if (isFlashlightServiceRunning()) return
 
@@ -52,11 +52,13 @@ class ServiceControllerImpl(
 
     override fun onServiceStarted() {
         keepCpuAwake(true)
+        _isRunning.value = true
     }
 
     override fun onServiceStopped() {
         keepCpuAwake(false)
         turnOffFlashlight()
+        _isRunning.value = false
     }
 
     override suspend fun onAcceleration(
