@@ -15,6 +15,11 @@ import com.wegielek.katanaflashlight.MainActivity
 import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.data.sensor.LinearAccelerationSensor
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -24,6 +29,11 @@ private const val LOG_TAG = "FlashlightForegroundService"
 class FlashlightForegroundService :
     Service(),
     KoinComponent {
+    private val serviceScope =
+        CoroutineScope(
+            SupervisorJob() + Dispatchers.Default,
+        )
+
     private val controller: ServiceController by inject()
     private lateinit var sensor: LinearAccelerationSensor
 
@@ -46,7 +56,9 @@ class FlashlightForegroundService :
 
         sensor =
             LinearAccelerationSensor(this) { x, y, z ->
-                controller.onAcceleration(x, y, z)
+                serviceScope.launch {
+                    controller.onAcceleration(x, y, z)
+                }
             }
         sensor.start()
 
@@ -118,6 +130,7 @@ class FlashlightForegroundService :
 
         sensor.stop()
         controller.onServiceStopped()
+        serviceScope.cancel()
 
         Log.d(LOG_TAG, "Foreground Service destroyed")
     }

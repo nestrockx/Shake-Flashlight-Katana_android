@@ -64,6 +64,7 @@ fun LandingScreen(
 ) {
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
+    val lacksPermissions = stringResource(R.string.lack_permissions)
 
     val oldAndroidInit by viewModel.olderAndroidInit.collectAsState()
     val oldAndroidClicked by viewModel.olderAndroidClicked.collectAsState()
@@ -107,24 +108,6 @@ fun LandingScreen(
                 }
             }
         }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer =
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_STOP) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
-                        viewModel.stopService()
-                    }
-                }
-            }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.initialize(context)
@@ -220,6 +203,7 @@ fun LandingScreen(
                             ) {
                                 viewModel.onKatanaServiceSwitch(it)
                             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                                 hasNotificationPermission
                             ) {
                                 viewModel.onKatanaServiceSwitch(it)
@@ -229,7 +213,7 @@ fun LandingScreen(
                                 Toast
                                     .makeText(
                                         context,
-                                        context.getString(R.string.lack_permissions),
+                                        lacksPermissions,
                                         Toast.LENGTH_SHORT,
                                     ).show()
                             }

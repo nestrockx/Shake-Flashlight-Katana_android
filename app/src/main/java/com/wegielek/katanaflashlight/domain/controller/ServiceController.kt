@@ -11,7 +11,7 @@ interface ServiceController {
 
     fun onServiceStopped()
 
-    fun onAcceleration(
+    suspend fun onAcceleration(
         x: Float,
         y: Float,
         z: Float,

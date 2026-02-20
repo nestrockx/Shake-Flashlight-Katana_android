@@ -21,8 +21,6 @@ class ServiceControllerImpl(
     private val slashDetection: SlashDetectionUseCase,
     private val turnOffFlashlight: TurnOffFlashlightUseCase,
 ) : ServiceController {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
     override fun startFlashlightService() {
         if (isFlashlightServiceRunning()) return
 
@@ -59,16 +57,13 @@ class ServiceControllerImpl(
     override fun onServiceStopped() {
         keepCpuAwake(false)
         turnOffFlashlight()
-        scope.cancel()
     }
 
-    override fun onAcceleration(
+    override suspend fun onAcceleration(
         x: Float,
         y: Float,
         z: Float,
     ) {
-        scope.launch {
-            slashDetection(x, y, z)
-        }
+        slashDetection(x, y, z)
     }
 }
