@@ -15,5 +15,5 @@ interface FlashlightController {
 
     fun hasStrengthLevels(): Boolean
 
-    fun isFlashlightOn(): Boolean
+    fun isFlashlightEnabled(): Boolean
 }

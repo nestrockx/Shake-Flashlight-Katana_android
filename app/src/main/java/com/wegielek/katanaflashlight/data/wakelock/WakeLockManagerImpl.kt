@@ -2,7 +2,7 @@ package com.wegielek.katanaflashlight.data.wakelock
 
 import android.content.Context
 import android.os.PowerManager
-import com.wegielek.katanaflashlight.domain.manager.WakeLockManager
+import com.wegielek.katanaflashlight.domain.wakelock.WakeLockManager
 
 class WakeLockManagerImpl(
     context: Context,

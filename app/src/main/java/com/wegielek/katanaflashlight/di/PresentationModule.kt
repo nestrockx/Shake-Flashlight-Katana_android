@@ -9,7 +9,6 @@ val presentationModule =
     module {
         viewModel {
             LandingViewModel(
-                androidApplication(),
                 get(),
                 get(),
                 get(),

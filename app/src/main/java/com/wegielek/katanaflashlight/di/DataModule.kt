@@ -6,16 +6,14 @@ import com.wegielek.katanaflashlight.data.controller.VibrationControllerImpl
 import com.wegielek.katanaflashlight.data.repository.CallStateRepositoryImpl
 import com.wegielek.katanaflashlight.data.repository.PermissionsRepositoryImpl
 import com.wegielek.katanaflashlight.data.repository.SettingsRepositoryImpl
-import com.wegielek.katanaflashlight.data.sensor.LinearAccelerationSensor
 import com.wegielek.katanaflashlight.data.wakelock.WakeLockManagerImpl
 import com.wegielek.katanaflashlight.domain.controller.FlashlightController
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import com.wegielek.katanaflashlight.domain.controller.VibrationController
-import com.wegielek.katanaflashlight.domain.detector.SlashDetector
-import com.wegielek.katanaflashlight.domain.manager.WakeLockManager
 import com.wegielek.katanaflashlight.domain.repository.CallStateRepository
 import com.wegielek.katanaflashlight.domain.repository.PermissionsRepository
 import com.wegielek.katanaflashlight.domain.repository.SettingsRepository
+import com.wegielek.katanaflashlight.domain.wakelock.WakeLockManager
 import org.koin.dsl.module
 
 val dataModule =

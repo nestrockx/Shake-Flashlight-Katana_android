@@ -1,6 +1,6 @@
 package com.wegielek.katanaflashlight.domain.usecase
 
-import com.wegielek.katanaflashlight.domain.manager.WakeLockManager
+import com.wegielek.katanaflashlight.domain.wakelock.WakeLockManager
 
 class KeepCpuAwakeUseCase(
     private val wakeLockManager: WakeLockManager,

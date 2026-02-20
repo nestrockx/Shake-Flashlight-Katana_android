@@ -27,7 +27,6 @@ sealed class UiState {
 }
 
 class LandingViewModel(
-    private val appContext: Context,
     private val service: ServiceController,
     private val permissions: PermissionsRepository,
     private val flashlightController: FlashlightController,
@@ -105,9 +104,8 @@ class LandingViewModel(
 
     fun toggleFlashlight() {
         viewModelScope.launch {
-            val flashOn = appContext.state.first().flashlightEnabled
             flashlightController.toggleFlashlight()
-            _uiState.value = _uiState.value.copy(flashlightEnabled = !flashOn)
+            _uiState.value = _uiState.value.copy(flashlightEnabled = flashlightController.isFlashlightEnabled())
         }
     }
 
@@ -152,11 +150,5 @@ class LandingViewModel(
         if (!running) {
             _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        // TODO
-//        flashlightController.release()
     }
 }

@@ -1,6 +1,6 @@
 package com.wegielek.katanaflashlight.di
 
-import com.wegielek.katanaflashlight.domain.detector.SlashDetector
+import com.wegielek.katanaflashlight.domain.SlashDetector
 import com.wegielek.katanaflashlight.domain.repository.SettingsRepository
 import com.wegielek.katanaflashlight.domain.usecase.KeepCpuAwakeUseCase
 import com.wegielek.katanaflashlight.domain.usecase.SlashDetectionUseCase

@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.domain.manager
+package com.wegielek.katanaflashlight.domain.wakelock
 
 interface WakeLockManager {
     fun acquire()

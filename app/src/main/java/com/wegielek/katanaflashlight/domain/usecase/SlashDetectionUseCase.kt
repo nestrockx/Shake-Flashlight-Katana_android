@@ -1,6 +1,6 @@
 package com.wegielek.katanaflashlight.domain.usecase
 
-import com.wegielek.katanaflashlight.domain.detector.SlashDetector
+import com.wegielek.katanaflashlight.domain.SlashDetector
 import com.wegielek.katanaflashlight.domain.repository.CallStateRepository
 
 class SlashDetectionUseCase(

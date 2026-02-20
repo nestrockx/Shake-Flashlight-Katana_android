@@ -12,7 +12,7 @@ class FlashlightControllerImpl(
 ) : FlashlightController {
     private var cameraManager: CameraManager? = null
     private var cameraId: String? = null
-    private var isFlashOn: Boolean = false
+    private var isFlashEnabled: Boolean = false
 
     private val torchCallback =
         object : CameraManager.TorchCallback() {
@@ -21,7 +21,7 @@ class FlashlightControllerImpl(
                 enabled: Boolean,
             ) {
                 if (id == cameraId) {
-                    isFlashOn = enabled
+                    isFlashEnabled = enabled
                 }
             }
         }
@@ -63,7 +63,7 @@ class FlashlightControllerImpl(
         }
 
     override fun toggleFlashlight() {
-        cameraId?.let { cameraManager?.setTorchMode(it, !isFlashOn) }
+        cameraId?.let { cameraManager?.setTorchMode(it, !isFlashEnabled) }
     }
 
     override fun turnOffFlashlight() {
@@ -71,11 +71,11 @@ class FlashlightControllerImpl(
     }
 
     override fun setStrength(level: Int) {
-        if (!isFlashOn) return
+        if (!isFlashEnabled) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             cameraId?.let { cameraManager?.turnOnTorchWithStrengthLevel(it, level) }
         }
     }
 
-    override fun isFlashlightOn(): Boolean = isFlashOn
+    override fun isFlashlightEnabled(): Boolean = isFlashEnabled
 }

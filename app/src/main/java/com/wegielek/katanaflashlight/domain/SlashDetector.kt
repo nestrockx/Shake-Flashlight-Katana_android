@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.domain.detector
+package com.wegielek.katanaflashlight.domain
 
 import android.util.Log
 import java.util.Timer
