@@ -78,8 +78,4 @@ class FlashlightControllerImpl(
     }
 
     override fun isFlashlightOn(): Boolean = isFlashOn
-
-    override fun release() {
-        cameraManager?.unregisterTorchCallback(torchCallback)
-    }
 }
