@@ -9,7 +9,7 @@
     <string name="vibrations">Wibracje</string>
     <string name="flashlight_not_available">Latarka niedostępna</string>
     <string name="light_strength">Jasność latarki</string>
-    <string name="instruction">Wykonaj telefonem dwukrotny szybki lub jeden dłuższy ruch cięcia(potrząśnij) by w(y)łączyć latarkę</string>
+    <string name="instruction">Wykonaj telefonem dwukrotny szybki lub jeden dłuższy ruch cięcia(potrząśnij) by w(y)łączyć latarkę. Dostosuj czułość wykrywania potrząśnięć w razie potrzeby.</string>
     <string name="notification_permission_needed">Pozwolenie na powiadomienia jest potrzebne by aplikacja działała w tle</string>
     <string name="allow_notification">Udziel koniecznych pozwoleń</string>
     <string name="close_notification">Wyłącz</string>

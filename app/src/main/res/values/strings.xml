@@ -9,7 +9,7 @@
     <string name="vibrations">Vibrations</string>
     <string name="flashlight_not_available">Flashlight not available</string>
     <string name="light_strength">Flash brightness</string>
-    <string name="instruction">Perform double fast slash or one longer slash movement with your device to turn on/off the flashlight</string>
+    <string name="instruction">Perform double fast slash or one longer slash movement with your device to turn on/off the flashlight. Adjust the slash detection sensitivity when needed.</string>
     <string name="notification_permission_needed">Notification permission is needed for app to work in background</string>
     <string name="allow_notification">Grant necessary permissions</string>
     <string name="close_notification">Turn off</string>
