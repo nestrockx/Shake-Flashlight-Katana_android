@@ -6,7 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 
-class LinearAccelerationSensor(
+class LinearAccelerationSensorListener(
     context: Context,
     private val onAcceleration: (Float, Float, Float) -> Unit,
 ) : SensorEventListener {

@@ -21,7 +21,7 @@
     <string name="katana_background">Katana app background image</string>
     <string name="menu_icon_button">menu icon button</string>
     <string name="flashlight_image">flashlight image</string>
-    <string name="back_button">Back button</string>
+    <string name="back_icon_button">back icon button</string>
     <string name="slash_animation">Slash animation</string>
     <string name="slash_animation_value">Slash animation value</string>
     <string name="start">Start</string>

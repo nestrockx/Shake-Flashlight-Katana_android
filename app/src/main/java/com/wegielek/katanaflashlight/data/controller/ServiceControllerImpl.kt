@@ -8,7 +8,7 @@ import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import com.wegielek.katanaflashlight.domain.usecase.KeepCpuAwakeUseCase
 import com.wegielek.katanaflashlight.domain.usecase.SlashDetectionUseCase
 import com.wegielek.katanaflashlight.domain.usecase.TurnOffFlashlightUseCase
-import com.wegielek.katanaflashlight.service.FlashlightForegroundService
+import com.wegielek.katanaflashlight.service.KatanaForegroundService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -24,14 +24,14 @@ class ServiceControllerImpl(
     override fun startFlashlightService() {
         if (isFlashlightServiceRunning()) return
 
-        val intent = Intent(context, FlashlightForegroundService::class.java)
+        val intent = Intent(context, KatanaForegroundService::class.java)
         ContextCompat.startForegroundService(context, intent)
     }
 
     override fun stopFlashlightService() {
         if (!isFlashlightServiceRunning()) return
 
-        val intent = Intent(context, FlashlightForegroundService::class.java)
+        val intent = Intent(context, KatanaForegroundService::class.java)
         context.stopService(intent)
     }
 
@@ -40,7 +40,7 @@ class ServiceControllerImpl(
             val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val services = manager.getRunningServices(Int.MAX_VALUE)
             for (serviceInfo in services) {
-                if (serviceInfo.service.className == FlashlightForegroundService::class.java.name) {
+                if (serviceInfo.service.className == KatanaForegroundService::class.java.name) {
                     return true
                 }
             }

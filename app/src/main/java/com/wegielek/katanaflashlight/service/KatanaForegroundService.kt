@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.wegielek.katanaflashlight.MainActivity
 import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.data.sensor.LinearAccelerationSensor
+import com.wegielek.katanaflashlight.data.sensor.LinearAccelerationSensorListener
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ import org.koin.core.component.inject
 private const val CHANNEL_ID = "ForegroundServiceChannel"
 private const val LOG_TAG = "FlashlightForegroundService"
 
-class FlashlightForegroundService :
+class KatanaForegroundService :
     Service(),
     KoinComponent {
     private val serviceScope =
@@ -35,7 +35,7 @@ class FlashlightForegroundService :
         )
 
     private val controller: ServiceController by inject()
-    private lateinit var sensor: LinearAccelerationSensor
+    private lateinit var sensor: LinearAccelerationSensorListener
 
     override fun onStartCommand(
         intent: Intent?,
@@ -56,7 +56,7 @@ class FlashlightForegroundService :
         controller.onServiceStarted()
 
         sensor =
-            LinearAccelerationSensor(this) { x, y, z ->
+            LinearAccelerationSensorListener(this) { x, y, z ->
                 serviceScope.launch {
                     controller.onAcceleration(x, y, z)
                 }
@@ -103,7 +103,7 @@ class FlashlightForegroundService :
                 PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val closeIntent = Intent(this, FlashlightForegroundService::class.java)
+        val closeIntent = Intent(this, KatanaForegroundService::class.java)
         closeIntent.putExtra("close", 1)
         val closePendingIntent =
             PendingIntent.getService(

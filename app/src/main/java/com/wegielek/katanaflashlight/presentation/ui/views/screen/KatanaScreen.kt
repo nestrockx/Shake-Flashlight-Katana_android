@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -152,7 +153,7 @@ fun LandingScreen(
         if (!oldAndroidInit) {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
                 KatanaIconButton(
-                    Icons.Rounded.Menu,
+                    rememberVectorPainter(Icons.Rounded.Menu),
                     stringResource(R.string.menu_icon_button),
                 ) { navigateToAbout() }
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

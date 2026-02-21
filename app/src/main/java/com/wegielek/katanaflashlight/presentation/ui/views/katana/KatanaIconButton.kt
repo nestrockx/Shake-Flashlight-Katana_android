@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -18,14 +19,14 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun KatanaIconButton(
-    imageVector: ImageVector,
+    painter: Painter,
     contentDescription: String,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit,
 ) {
     Icon(
         tint = tint,
-        imageVector = imageVector,
+        painter = painter,
         contentDescription = contentDescription,
         modifier =
             Modifier
