@@ -146,7 +146,7 @@ class LandingViewModel(
         _uiState.value = _uiState.value.copy(instructionExpired = value)
     }
 
-    fun monitorServiceShutdown(running: Boolean) {
+    fun monitorKatanaServiceShutdown(running: Boolean) {
         if (!running) {
             _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
         }

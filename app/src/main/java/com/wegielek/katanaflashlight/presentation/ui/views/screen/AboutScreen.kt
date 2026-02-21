@@ -18,15 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wegielek.katanaflashlight.R
-import com.wegielek.katanaflashlight.presentation.ui.views.katana.HyperlinkText
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaBackground
+import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaHyperlinkText
 
 @Composable
 fun AboutScreen(navigateToLanding: () -> Unit) {
@@ -63,7 +62,7 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                         .wrapContentHeight()
                         .align(Alignment.BottomCenter),
             ) {
-                HyperlinkText(
+                KatanaHyperlinkText(
                     fullText = "Icon assets from https://www.onlinewebfonts.com/icon used under CC BY 4.0",
                     linkText = listOf("https://www.onlinewebfonts.com/icon"),
                     hyperlinks = listOf("https://www.onlinewebfonts.com/icon"),
@@ -73,6 +72,7 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                             .fillMaxWidth(),
                     fontSize = 16.sp,
                     linkTextColor = MaterialTheme.colorScheme.primary,
+                    contentDescription = "https://www.onlinewebfonts.com/icon link",
                 )
                 Text(
                     text = stringResource(R.string.version),

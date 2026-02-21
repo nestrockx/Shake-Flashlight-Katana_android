@@ -101,16 +101,12 @@ fun KatanaInstructionDialog(
 
                     Spacer(modifier = Modifier.size(20.dp))
 
-                    KatanaTextButton(stringResource(R.string.understand)) {
+                    KatanaTextButton(
+                        stringResource(R.string.understand),
+                        "understand button",
+                    ) {
                         onConfirm()
                     }
-//                    TextButton(
-//                        onClick = {
-//                            onConfirm()
-//                        },
-//                    ) {
-//                        Text(text = "Understand")
-//                    }
                 }
             }
         }

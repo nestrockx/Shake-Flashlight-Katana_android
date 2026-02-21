@@ -112,7 +112,7 @@ fun LandingScreen(
     }
 
     LaunchedEffect(isServiceRunning) {
-        viewModel.monitorServiceShutdown(isServiceRunning)
+        viewModel.monitorKatanaServiceShutdown(isServiceRunning)
     }
 
     LaunchedEffect(state) {
@@ -152,8 +152,8 @@ fun LandingScreen(
         if (!oldAndroidInit) {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
                 KatanaIconButton(
-                    imageVector = Icons.Rounded.Menu,
-                    contentDescription = stringResource(R.string.menu_icon),
+                    Icons.Rounded.Menu,
+                    stringResource(R.string.menu_icon_button),
                 ) { navigateToAbout() }
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(
@@ -169,14 +169,14 @@ fun LandingScreen(
                         Spacer(modifier = Modifier.size(16.dp))
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                             if (!hasNotificationPermission || !hasCameraPermission) {
-                                KatanaTextButton(stringResource(R.string.allow_notification))
+                                KatanaTextButton(stringResource(R.string.allow_notification), "notification permission button")
                                 {
                                     notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                 }
                             }
                         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             if (!hasNotificationPermission) {
-                                KatanaTextButton(stringResource(R.string.allow_notification))
+                                KatanaTextButton(stringResource(R.string.allow_notification), "notification permission button")
                                 {
                                     notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                 }
@@ -189,6 +189,7 @@ fun LandingScreen(
                                 state.strength.toFloat(),
                                 1f..state.maxStrength.toFloat(),
                                 (state.maxStrength - 2).coerceAtLeast(0),
+                                "light strength slider",
                             ) {
                                 viewModel.onStrengthChange(it.toInt())
                             }
@@ -198,6 +199,7 @@ fun LandingScreen(
                         KatanaSwitch(
                             stringResource(R.string.on_off),
                             state.katanaServiceRunning,
+                            "katana service switch",
                         ) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                                 hasCameraPermission &&
@@ -224,6 +226,7 @@ fun LandingScreen(
                         KatanaSwitch(
                             stringResource(R.string.vibrations),
                             state.vibrationEnabled,
+                            "vibrations switch",
                         ) {
                             viewModel.onVibrationSwitch(it)
                         }
@@ -233,13 +236,15 @@ fun LandingScreen(
                             state.sensitivity,
                             0f..10f,
                             9,
+                            "shake sensitivity slider",
                         ) {
                             viewModel.onSensitivityChange(it)
                         }
                         Spacer(Modifier.padding(4.dp))
                         KatanaImageButton(
                             painterResource(R.drawable.ic_katana_with_handle),
-                            contentDescription = stringResource(R.string.flash_button),
+                            stringResource(R.string.flashlight_image),
+                            "flashlight button",
                         ) {
                             viewModel.toggleFlashlight()
                         }

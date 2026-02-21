@@ -9,21 +9,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun KatanaImageButton(
     painter: Painter,
+    imageContentDescription: String,
     contentDescription: String,
     onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
+        modifier =
+            Modifier.semantics {
+                this.contentDescription = contentDescription
+            },
     ) {
         Image(
             painter = painter,
-            contentDescription = contentDescription,
+            contentDescription = imageContentDescription,
             modifier =
                 Modifier
                     .wrapContentSize()

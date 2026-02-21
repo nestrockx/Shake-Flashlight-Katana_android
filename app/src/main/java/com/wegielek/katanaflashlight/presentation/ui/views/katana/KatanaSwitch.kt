@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.sp
 fun KatanaSwitch(
     name: String,
     checked: Boolean,
+    contentDescription: String,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Text(
@@ -57,7 +60,10 @@ fun KatanaSwitch(
                 ),
             onCheckedChange = { onCheckedChange(it) },
             enabled = true,
-            modifier = Modifier.align(Alignment.CenterEnd),
+            modifier =
+                Modifier.align(Alignment.CenterEnd).semantics {
+                    this.contentDescription = contentDescription
+                },
         )
     }
     Spacer(modifier = Modifier.size(10.dp))

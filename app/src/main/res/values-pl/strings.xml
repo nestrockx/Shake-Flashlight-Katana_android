@@ -19,8 +19,8 @@
     <!--Content descriptions -->
     <string name="animated_katana">Animowana ikona katany wykonującej cięcie</string>
     <string name="katana_background">Obraz katany jako tło aplikacji</string>
-    <string name="menu_icon">Przycisk menu</string>
-    <string name="flash_button">Przycisk latarki</string>
+    <string name="menu_icon_button">przycisk ikona menu</string>
+    <string name="flashlight_image">obrazek latarki</string>
     <string name="back_button">Przycisk cofania</string>
     <string name="slash_animation">Animacja cięcia</string>
     <string name="slash_animation_value">Wartość animacji cięcia</string>

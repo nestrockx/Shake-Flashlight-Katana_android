@@ -19,8 +19,8 @@
     <!--Content descriptions -->
     <string name="animated_katana">Animated katana slash icon</string>
     <string name="katana_background">Katana app background image</string>
-    <string name="menu_icon">Menu button</string>
-    <string name="flash_button">Flash button</string>
+    <string name="menu_icon_button">menu icon button</string>
+    <string name="flashlight_image">flashlight image</string>
     <string name="back_button">Back button</string>
     <string name="slash_animation">Slash animation</string>
     <string name="slash_animation_value">Slash animation value</string>

@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -16,7 +18,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 
 @Composable
-fun HyperlinkText(
+fun KatanaHyperlinkText(
     modifier: Modifier = Modifier,
     fullText: String,
     textColor: Color = MaterialTheme.colorScheme.tertiary,
@@ -26,6 +28,7 @@ fun HyperlinkText(
     linkTextDecoration: TextDecoration = TextDecoration.Underline,
     hyperlinks: List<String> = listOf(""),
     fontSize: TextUnit = TextUnit.Unspecified,
+    contentDescription: String,
 ) {
     val annotatedString =
         buildAnnotatedString {
@@ -68,13 +71,16 @@ fun HyperlinkText(
         style = TextStyle(textAlign = TextAlign.Center),
         text = annotatedString,
         modifier =
-            modifier.clickable {
-                annotatedString
-                    .getStringAnnotations("URL", 0, annotatedString.length)
-                    .firstOrNull()
-                    ?.let { stringAnnotation ->
-                        uriHandler.openUri(stringAnnotation.item)
-                    }
-            },
+            modifier
+                .semantics {
+                    this.contentDescription = contentDescription
+                }.clickable {
+                    annotatedString
+                        .getStringAnnotations("URL", 0, annotatedString.length)
+                        .firstOrNull()
+                        ?.let { stringAnnotation ->
+                            uriHandler.openUri(stringAnnotation.item)
+                        }
+                },
     )
 }

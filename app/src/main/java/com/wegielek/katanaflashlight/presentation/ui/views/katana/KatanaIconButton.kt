@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -27,7 +29,9 @@ fun KatanaIconButton(
         contentDescription = contentDescription,
         modifier =
             Modifier
-                .clickable(
+                .semantics {
+                    this.contentDescription = contentDescription
+                }.clickable(
                     onClick = onClick,
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(bounded = false, color = MaterialTheme.colorScheme.onSurface),
