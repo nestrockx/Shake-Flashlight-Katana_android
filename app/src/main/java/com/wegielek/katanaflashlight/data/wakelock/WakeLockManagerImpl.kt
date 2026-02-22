@@ -1,5 +1,6 @@
 package com.wegielek.katanaflashlight.data.wakelock
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.PowerManager
 import com.wegielek.katanaflashlight.domain.wakelock.WakeLockManager
@@ -19,6 +20,7 @@ class WakeLockManagerImpl(
         )
     }
 
+    @SuppressLint("WakelockTimeout")
     override fun acquire() {
         wakeLock.acquire()
     }

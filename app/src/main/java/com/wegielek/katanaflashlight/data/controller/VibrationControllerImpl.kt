@@ -11,12 +11,12 @@ class VibrationControllerImpl(
     private val context: Context,
 ) : VibrationController {
     override fun vibrate() {
-        val v = ContextCompat.getSystemService(context, Vibrator::class.java) as Vibrator
+        val vibrator = ContextCompat.getSystemService(context, Vibrator::class.java) as Vibrator
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE))
+            vibrator.vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             @Suppress("DEPRECATION")
-            v.vibrate(300)
+            vibrator.vibrate(300)
         }
     }
 }
