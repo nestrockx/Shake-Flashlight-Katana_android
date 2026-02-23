@@ -37,7 +37,7 @@ class SlashDetector(
         val accelerationY = linearAccelerationResult[1]
         val accelerationZ = linearAccelerationResult[2]
 
-        Log.d("Sensor data:", "linear acceleration:s $x $y $z")
+        Log.d("Sensor data:", "linear acceleration: $x $y $z")
 
         val averageAcceleration =
             sqrt(

@@ -108,12 +108,12 @@ fun LandingScreen(
             }
         }
 
-    LaunchedEffect(Unit) {
-        viewModel.initialize(context)
-    }
-
     LaunchedEffect(isServiceRunning) {
         viewModel.monitorKatanaServiceShutdown(isServiceRunning)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.initialize(context)
     }
 
     LaunchedEffect(state) {

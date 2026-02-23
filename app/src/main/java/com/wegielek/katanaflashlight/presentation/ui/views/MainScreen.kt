@@ -26,9 +26,10 @@ fun MainScreen(
     navController: NavHostController = rememberNavController(),
 ) {
     NavHost(
-        modifier = Modifier.fillMaxSize().background(Color.Black).padding(innerPadding),
         navController = navController,
         startDestination = Route.LANDING_SCREEN,
+        modifier =
+            Modifier.fillMaxSize().background(Color.Black).padding(innerPadding),
     ) {
         composable(route = Route.LANDING_SCREEN) {
             LandingScreen(navigateToAbout = {
