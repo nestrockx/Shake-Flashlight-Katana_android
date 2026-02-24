@@ -59,10 +59,6 @@ class KatanaViewModel(
         olderAndroidInit.value = false
     }
 
-    fun setOldAndroidInit(value: Boolean) {
-        olderAndroidInit.value = value
-    }
-
     private val _hasCameraPermission = MutableStateFlow(false)
     val hasCameraPermission: StateFlow<Boolean> = _hasCameraPermission
 
