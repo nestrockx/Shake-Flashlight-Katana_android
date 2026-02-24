@@ -1,6 +1,7 @@
 package com.wegielek.katanaflashlight.presentation.viewmodels
 
 import android.content.Context
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wegielek.katanaflashlight.data.Prefs
@@ -97,6 +98,10 @@ class KatanaViewModel(
             _uiState.value = _uiState.value.copy(hasStrengthLevels = flashlightController.hasStrengthLevels())
             _uiState.value = _uiState.value.copy(maxStrength = flashlightController.getMaxStrengthLevel())
             _uiState.value = _uiState.value.copy(katanaServiceRunning = service.isFlashlightServiceRunning())
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !_uiState.value.instructionExpired) {
+                olderAndroidInit.value = true
+            }
         }
     }
 

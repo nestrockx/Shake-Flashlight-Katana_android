@@ -147,8 +147,6 @@ fun LandingScreen(
                 onInit = { viewModel.startService() },
                 onConfirm = { viewModel.setInstructionExpired(true) },
             )
-        } else if (!state.instructionExpired) {
-            viewModel.setOldAndroidInit(true)
         }
         if (!oldAndroidInit) {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
