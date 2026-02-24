@@ -26,7 +26,7 @@ sealed class UiState {
     ) : UiState()
 }
 
-class LandingViewModel(
+class KatanaViewModel(
     private val service: ServiceController,
     private val permissions: PermissionsRepository,
     private val flashlightController: FlashlightController,

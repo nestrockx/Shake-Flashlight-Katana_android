@@ -51,12 +51,12 @@ import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaInstruct
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaSlider
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaSwitch
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaTextButton
-import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
+import com.wegielek.katanaflashlight.presentation.viewmodels.KatanaViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LandingScreen(
-    viewModel: LandingViewModel = koinViewModel(),
+    viewModel: KatanaViewModel = koinViewModel(),
     navigateToAbout: () -> Unit,
 ) {
     val isServiceRunning by viewModel.isServiceRunning.collectAsState()
