@@ -28,7 +28,7 @@ class FlashlightControllerImpl(
 
     override fun initialize() {
         cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        cameraId = cameraManager?.cameraIdList?.firstOrNull()
+        cameraId = findBackCameraWithFlash(cameraManager)
 
         cameraManager?.registerTorchCallback(
             torchCallback,
@@ -78,4 +78,22 @@ class FlashlightControllerImpl(
     }
 
     override fun isFlashlightEnabled(): Boolean = isFlashEnabled
+
+    private fun findBackCameraWithFlash(cameraManager: CameraManager?): String? {
+        cameraManager?.cameraIdList?.forEach { id ->
+            val characteristics = cameraManager.getCameraCharacteristics(id)
+
+            val hasFlash =
+                characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+
+            val isBackCamera =
+                characteristics.get(CameraCharacteristics.LENS_FACING) ==
+                    CameraCharacteristics.LENS_FACING_BACK
+
+            if (hasFlash && isBackCamera) {
+                return id
+            }
+        }
+        return null
+    }
 }
