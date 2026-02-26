@@ -16,7 +16,7 @@ android {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
         targetSdk = 36
-        versionCode = 15
+        versionCode = 16
         versionName = "2.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
