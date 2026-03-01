@@ -18,4 +18,9 @@ class SettingsRepositoryImpl(
         context.state
             .first()
             .vibrationEnabled
+
+    override suspend fun getStrength(): Int =
+        context.state
+            .first()
+            .strength
 }

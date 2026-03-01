@@ -105,7 +105,7 @@ class KatanaViewModel(
 
     fun toggleFlashlight() {
         viewModelScope.launch {
-            flashlightController.toggleFlashlight()
+            flashlightController.toggleFlashlight(_uiState.value.strength)
             _uiState.value = _uiState.value.copy(flashlightEnabled = flashlightController.isFlashlightEnabled())
         }
     }

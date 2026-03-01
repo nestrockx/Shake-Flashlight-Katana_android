@@ -4,4 +4,6 @@ interface SettingsRepository {
     suspend fun getSensitivity(): Int
 
     suspend fun isVibrationEnabled(): Boolean
+
+    suspend fun getStrength(): Int
 }

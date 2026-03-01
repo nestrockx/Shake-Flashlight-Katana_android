@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.wegielek.katanaflashlight.domain.controller.FlashlightController
 
 class FlashlightControllerImpl(
@@ -62,8 +63,16 @@ class FlashlightControllerImpl(
             1
         }
 
-    override fun toggleFlashlight() {
-        cameraId?.let { cameraManager?.setTorchMode(it, !isFlashEnabled) }
+    override fun toggleFlashlight(level: Int) {
+        if (hasStrengthLevels()) {
+            if (!isFlashEnabled) {
+                cameraId?.let { cameraManager?.turnOnTorchWithStrengthLevel(it, level) }
+            } else {
+                cameraId?.let { cameraManager?.setTorchMode(it, false) }
+            }
+        } else {
+            cameraId?.let { cameraManager?.setTorchMode(it, !isFlashEnabled) }
+        }
     }
 
     override fun turnOffFlashlight() {
