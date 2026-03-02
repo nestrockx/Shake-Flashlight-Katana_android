@@ -25,10 +25,10 @@ object Prefs {
     private val HAS_STRENGTH_LEVELS_KEY = booleanPreferencesKey("has_strength_levels")
     private val INTRO_KEY = booleanPreferencesKey("intro")
 
-    val Context.state: Flow<UiState.Settings>
+    val Context.state: Flow<UiState>
         get() =
             dataStore.data.map {
-                UiState.Settings(
+                UiState(
                     sensitivity = it[SENSITIVITY_KEY] ?: 5f,
                     flashlightEnabled = it[FLASH_KEY] ?: false,
                     vibrationEnabled = it[VIBRATION_KEY] ?: true,
@@ -42,7 +42,7 @@ object Prefs {
 
     suspend fun saveState(
         context: Context,
-        state: UiState.Settings,
+        state: UiState,
     ) {
         context.dataStore.edit {
             it[SENSITIVITY_KEY] = state.sensitivity

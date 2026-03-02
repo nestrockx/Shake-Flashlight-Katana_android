@@ -14,29 +14,27 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-sealed class UiState {
-    data class Settings(
-        val sensitivity: Float,
-        val flashlightEnabled: Boolean,
-        val vibrationEnabled: Boolean,
-        val katanaServiceRunning: Boolean,
-        val strength: Int,
-        val maxStrength: Int,
-        val hasStrengthLevels: Boolean,
-        val instructionExpired: Boolean,
-    ) : UiState()
-}
+data class UiState(
+    val sensitivity: Float,
+    val flashlightEnabled: Boolean,
+    val vibrationEnabled: Boolean,
+    val katanaServiceRunning: Boolean,
+    val strength: Int,
+    val maxStrength: Int,
+    val hasStrengthLevels: Boolean,
+    val instructionExpired: Boolean,
+)
 
 class KatanaViewModel(
-    private val service: ServiceController,
-    private val permissions: PermissionsRepository,
+    private val serviceController: ServiceController,
+    private val permissionsRepository: PermissionsRepository,
     private val flashlightController: FlashlightController,
 ) : ViewModel() {
-    val isServiceRunning = service.isRunning
+    val isServiceRunning = serviceController.isRunning
 
     private val _uiState =
         MutableStateFlow(
-            UiState.Settings(
+            UiState(
                 sensitivity = 5f,
                 flashlightEnabled = false,
                 vibrationEnabled = true,
@@ -47,7 +45,7 @@ class KatanaViewModel(
                 instructionExpired = false,
             ),
         )
-    val uiState: StateFlow<UiState.Settings> = _uiState
+    val uiState: StateFlow<UiState> = _uiState
 
     var olderAndroidInit = MutableStateFlow(false)
         private set
@@ -66,21 +64,21 @@ class KatanaViewModel(
     val hasNotificationPermission: StateFlow<Boolean> = _hasNotificationPermission
 
     fun updatePermissions() {
-        _hasCameraPermission.value = permissions.hasCameraPermission()
-        _hasNotificationPermission.value = permissions.hasNotificationPermission()
+        _hasCameraPermission.value = permissionsRepository.hasCameraPermission()
+        _hasNotificationPermission.value = permissionsRepository.hasNotificationPermission()
     }
 
     fun startService() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(katanaServiceRunning = true)
-            service.startFlashlightService()
+            serviceController.startFlashlightService()
         }
     }
 
     fun stopService() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
-            service.stopFlashlightService()
+            serviceController.stopFlashlightService()
         }
     }
 
@@ -93,7 +91,7 @@ class KatanaViewModel(
             _uiState.value = context.state.first()
             _uiState.value = _uiState.value.copy(hasStrengthLevels = flashlightController.hasStrengthLevels())
             _uiState.value = _uiState.value.copy(maxStrength = flashlightController.getMaxStrengthLevel())
-            _uiState.value = _uiState.value.copy(katanaServiceRunning = service.isFlashlightServiceRunning())
+            _uiState.value = _uiState.value.copy(katanaServiceRunning = serviceController.isFlashlightServiceRunning())
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !_uiState.value.instructionExpired) {
                 olderAndroidInit.value = true
