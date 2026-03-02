@@ -1,17 +1,14 @@
 package com.wegielek.katanaflashlight.presentation.viewmodels
 
-import android.content.Context
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wegielek.katanaflashlight.data.Prefs
-import com.wegielek.katanaflashlight.data.Prefs.state
 import com.wegielek.katanaflashlight.domain.controller.FlashlightController
 import com.wegielek.katanaflashlight.domain.controller.ServiceController
 import com.wegielek.katanaflashlight.domain.repository.PermissionsRepository
+import com.wegielek.katanaflashlight.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 data class UiState(
@@ -29,6 +26,7 @@ class KatanaViewModel(
     private val serviceController: ServiceController,
     private val permissionsRepository: PermissionsRepository,
     private val flashlightController: FlashlightController,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     val isServiceRunning = serviceController.isRunning
 
@@ -63,68 +61,63 @@ class KatanaViewModel(
     private val _hasNotificationPermission = MutableStateFlow(false)
     val hasNotificationPermission: StateFlow<Boolean> = _hasNotificationPermission
 
+    init {
+        initialize()
+    }
+
     fun updatePermissions() {
         _hasCameraPermission.value = permissionsRepository.hasCameraPermission()
         _hasNotificationPermission.value = permissionsRepository.hasNotificationPermission()
     }
 
     fun startService() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(katanaServiceRunning = true)
-            serviceController.startFlashlightService()
-        }
+        _uiState.value = _uiState.value.copy(katanaServiceRunning = true)
+        serviceController.startFlashlightService()
     }
 
     fun stopService() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
-            serviceController.stopFlashlightService()
-        }
+        _uiState.value = _uiState.value.copy(katanaServiceRunning = false)
+        serviceController.stopFlashlightService()
     }
 
-    fun initialize(context: Context) {
+    fun initialize() {
         viewModelScope.launch {
-            flashlightController.initialize()
+            _uiState.value = settingsRepository.getState()
+            _uiState.value =
+                _uiState.value.copy(hasStrengthLevels = flashlightController.hasStrengthLevels())
+            _uiState.value =
+                _uiState.value.copy(maxStrength = flashlightController.getMaxStrengthLevel())
+            _uiState.value =
+                _uiState.value.copy(katanaServiceRunning = serviceController.isFlashlightServiceRunning())
+        }
 
-            updatePermissions()
+        flashlightController.initialize()
 
-            _uiState.value = context.state.first()
-            _uiState.value = _uiState.value.copy(hasStrengthLevels = flashlightController.hasStrengthLevels())
-            _uiState.value = _uiState.value.copy(maxStrength = flashlightController.getMaxStrengthLevel())
-            _uiState.value = _uiState.value.copy(katanaServiceRunning = serviceController.isFlashlightServiceRunning())
+        updatePermissions()
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !_uiState.value.instructionExpired) {
-                olderAndroidInit.value = true
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !_uiState.value.instructionExpired) {
+            olderAndroidInit.value = true
         }
     }
 
     fun hasFlashlight(): Boolean = flashlightController.hasFlashlight()
 
     fun toggleFlashlight() {
-        viewModelScope.launch {
-            flashlightController.toggleFlashlight(_uiState.value.strength)
-            _uiState.value = _uiState.value.copy(flashlightEnabled = flashlightController.isFlashlightEnabled())
-        }
+        flashlightController.toggleFlashlight(_uiState.value.strength)
+        _uiState.value = _uiState.value.copy(flashlightEnabled = flashlightController.isFlashlightEnabled())
     }
 
     fun onStrengthChange(strength: Int) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(strength = strength)
-            flashlightController.setStrength(strength)
-        }
+        _uiState.value = _uiState.value.copy(strength = strength)
+        flashlightController.setStrength(strength)
     }
 
     fun onSensitivityChange(sensitivity: Float) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(sensitivity = sensitivity)
-        }
+        _uiState.value = _uiState.value.copy(sensitivity = sensitivity)
     }
 
     fun onVibrationSwitch(enabled: Boolean) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(vibrationEnabled = enabled)
-        }
+        _uiState.value = _uiState.value.copy(vibrationEnabled = enabled)
     }
 
     fun onKatanaServiceSwitch(enabled: Boolean) {
@@ -135,9 +128,9 @@ class KatanaViewModel(
         }
     }
 
-    fun saveState(context: Context) {
+    fun saveState() {
         viewModelScope.launch {
-            Prefs.saveState(context, _uiState.value)
+            settingsRepository.saveState(_uiState.value)
         }
     }
 
