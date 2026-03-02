@@ -62,7 +62,7 @@ fun KatanaSlider(
                     .fillMaxWidth()
                     .align(Alignment.Center)
                     .semantics {
-                        this.contentDescription = contentDescription
+                        this.contentDescription = "$contentDescription ${value.toInt()}"
                     },
             colors =
                 SliderDefaults.colors(

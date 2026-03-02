@@ -62,7 +62,7 @@ fun KatanaSwitch(
             enabled = true,
             modifier =
                 Modifier.align(Alignment.CenterEnd).semantics {
-                    this.contentDescription = contentDescription
+                    this.contentDescription = if (checked) "$contentDescription on" else "$contentDescription off"
                 },
         )
     }

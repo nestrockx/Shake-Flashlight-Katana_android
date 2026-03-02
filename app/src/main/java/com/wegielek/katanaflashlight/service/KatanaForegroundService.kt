@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import com.wegielek.katanaflashlight.BuildConfig
 import com.wegielek.katanaflashlight.MainActivity
 import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.data.sensor.LinearAccelerationSensorListener
@@ -113,19 +114,26 @@ class KatanaForegroundService :
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        return NotificationCompat
-            .Builder(this, CHANNEL_ID)
-            .setContentText(getString(R.string.katana_is_running))
-            .setContentIntent(pendingNotificationIntent)
-            .setSmallIcon(R.drawable.ic_katana_with_handle)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(
-                R.drawable.ic_katana_with_handle,
-                getString(R.string.close_notification),
-                closePendingIntent,
-            ).setOngoing(true)
-            .setSilent(true)
-            .build()
+        val notificationBuilder =
+            NotificationCompat
+                .Builder(this, CHANNEL_ID)
+                .setContentText(getString(R.string.katana_is_running))
+                .setContentIntent(pendingNotificationIntent)
+                .setSmallIcon(R.drawable.ic_katana_with_handle)
+                .addAction(
+                    R.drawable.ic_katana_with_handle,
+                    getString(R.string.close_notification),
+                    closePendingIntent,
+                ).setOngoing(true)
+                .setSilent(true)
+
+        if (BuildConfig.DEBUG) {
+            notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH)
+        } else {
+            notificationBuilder.setPriority(NotificationCompat.PRIORITY_LOW)
+        }
+
+        return notificationBuilder.build()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
