@@ -14,11 +14,6 @@ import com.wegielek.katanaflashlight.presentation.ui.theme.KatanaFlashlightTheme
 import com.wegielek.katanaflashlight.presentation.ui.views.MainScreen
 
 class MainActivity : ComponentActivity() {
-    object Route {
-        const val LANDING_SCREEN = "landingScreen"
-        const val ABOUT_SCREEN = "aboutScreen"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

@@ -16,9 +16,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.wegielek.katanaflashlight.MainActivity.Route
 import com.wegielek.katanaflashlight.presentation.ui.views.screen.AboutScreen
 import com.wegielek.katanaflashlight.presentation.ui.views.screen.LandingScreen
+
+private object Route {
+    const val LANDING_SCREEN = "landingScreen"
+    const val ABOUT_SCREEN = "aboutScreen"
+}
 
 @Composable
 fun MainScreen(

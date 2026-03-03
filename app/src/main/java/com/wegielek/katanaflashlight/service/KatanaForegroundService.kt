@@ -119,6 +119,7 @@ class KatanaForegroundService :
                 .Builder(this, CHANNEL_ID)
                 .setContentText(getString(R.string.katana_is_running))
                 .setContentIntent(pendingNotificationIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setSmallIcon(R.drawable.ic_katana_with_handle)
                 .addAction(
                     R.drawable.ic_katana_with_handle,
@@ -126,12 +127,6 @@ class KatanaForegroundService :
                     closePendingIntent,
                 ).setOngoing(true)
                 .setSilent(true)
-
-        if (BuildConfig.DEBUG) {
-            notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH)
-        } else {
-            notificationBuilder.setPriority(NotificationCompat.PRIORITY_LOW)
-        }
 
         return notificationBuilder.build()
     }
