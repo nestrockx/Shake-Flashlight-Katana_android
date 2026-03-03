@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.wegielek.katanaflashlight.presentation.ui.views.ad.BannerAd
 import com.wegielek.katanaflashlight.presentation.ui.views.screen.AboutScreen
 import com.wegielek.katanaflashlight.presentation.ui.views.screen.LandingScreen
 

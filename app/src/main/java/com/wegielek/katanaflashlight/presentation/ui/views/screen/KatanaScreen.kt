@@ -43,7 +43,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wegielek.katanaflashlight.BuildConfig
 import com.wegielek.katanaflashlight.R
+import com.wegielek.katanaflashlight.presentation.ui.views.ad.BannerAd
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaBackground
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaIconButton
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaImageButton
@@ -243,8 +245,12 @@ fun LandingScreen(
                         ) {
                             viewModel.toggleFlashlight()
                         }
-                        Spacer(modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.size(64.dp))
                     }
+                    BannerAd(
+                        adUnitId = BuildConfig.ADMOB_BANNER_ID,
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                    )
                 }
             }
         } else {

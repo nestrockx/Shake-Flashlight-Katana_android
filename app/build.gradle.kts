@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -7,6 +10,12 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.firebase.firebase.perf)
 }
+
+val properties = Properties()
+properties.load(rootProject.file("local.properties").inputStream())
+
+val admobAppId: String? = properties.getProperty("ADMOB_APP_ID")
+val admobBannerId: String? = properties.getProperty("ADMOB_BANNER_ID")
 
 android {
     namespace = "com.wegielek.katanaflashlight"
@@ -30,10 +39,22 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            manifestPlaceholders["ADMOB_APP_ID"] = admobAppId ?: "ca-app-pub-3940256099942544~3347511713"
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_ID",
+                "\"${admobBannerId ?: "ca-app-pub-3940256099942544/6300978111"}\"",
+            )
         }
         debug {
             isShrinkResources = false
             isMinifyEnabled = false
+            manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713"
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_ID",
+                "\"ca-app-pub-3940256099942544/6300978111\"",
+            )
         }
     }
     compileOptions {
@@ -43,7 +64,7 @@ android {
     kotlin {
         target {
             compilerOptions {
-                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+                jvmTarget.set(JvmTarget.JVM_1_8)
             }
         }
     }
@@ -85,15 +106,20 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.navigation)
     implementation(libs.koin.androidx.compose)
+
+    // Firebase
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
+
+    // Play services
+    implementation(libs.play.services.ads)
 
     // Data Store
     implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
-    testImplementation("io.mockk:mockk:1.14.9")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

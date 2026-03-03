@@ -17,7 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wegielek.katanaflashlight.BuildConfig
 import com.wegielek.katanaflashlight.R
+import com.wegielek.katanaflashlight.presentation.ui.views.ad.BannerAd
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaBackground
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaHyperlinkText
 import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaIconButton
@@ -62,6 +64,14 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                         Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
+                )
+                BannerAd(
+                    adUnitId =
+                        if (BuildConfig.DEBUG) {
+                            "ca-app-pub-3940256099942544/6300978111"
+                        } else {
+                            "ca-app-pub-2244378897148865/8114776507"
+                        },
                 )
             }
         }

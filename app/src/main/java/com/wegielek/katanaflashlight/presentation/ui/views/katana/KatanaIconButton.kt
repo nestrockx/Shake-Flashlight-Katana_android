@@ -13,9 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wegielek.katanaflashlight.R
 
 @Composable
 fun KatanaIconButton(
@@ -39,5 +42,16 @@ fun KatanaIconButton(
                 ).padding(8.dp)
                 .size(50.dp)
                 .padding(8.dp),
+    )
+}
+
+@Preview(showBackground = false)
+@Composable
+fun KatanaIconButtonPreview() {
+    KatanaIconButton(
+        painter = painterResource(id = R.drawable.ic_menu),
+        contentDescription = "Katana Icon Button",
+        tint = Color.White,
+        onClick = { /* Preview click */ },
     )
 }

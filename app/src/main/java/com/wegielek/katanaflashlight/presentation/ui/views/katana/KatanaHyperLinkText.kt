@@ -15,7 +15,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun KatanaHyperlinkText(
@@ -82,5 +84,19 @@ fun KatanaHyperlinkText(
                             uriHandler.openUri(stringAnnotation.item)
                         }
                 },
+    )
+}
+
+@Preview(showBackground = false)
+@Composable
+fun KatanaHyperlinkTextPreview() {
+    KatanaHyperlinkText(
+        fullText = "Visit our website and check the documentation.",
+        linkText = listOf("website", "documentation"),
+        hyperlinks = listOf("https://example.com", "https://example.com/docs"),
+        textColor = Color.White,
+        linkTextColor = Color.Cyan,
+        fontSize = 16.sp,
+        contentDescription = "Katana Hyperlink Text",
     )
 }
