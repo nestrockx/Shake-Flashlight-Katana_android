@@ -1,5 +1,6 @@
 package com.wegielek.katanaflashlight.presentation.ui.views.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,10 @@ import com.wegielek.katanaflashlight.presentation.ui.views.katana.KatanaIconButt
 
 @Composable
 fun AboutScreen(navigateToLanding: () -> Unit) {
+    BackHandler {
+        navigateToLanding()
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,

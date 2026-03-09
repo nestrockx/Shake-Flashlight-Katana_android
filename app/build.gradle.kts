@@ -17,6 +17,8 @@ properties.load(rootProject.file("local.properties").inputStream())
 val admobAppId: String? = properties.getProperty("ADMOB_APP_ID")
 val admobBannerId: String? = properties.getProperty("ADMOB_BANNER_ID")
 
+val admobInterstitialId: String? = properties.getProperty("ADMOB_INTERSTITIAL_ID")
+
 android {
     namespace = "com.wegielek.katanaflashlight"
     compileSdk = 36
@@ -25,8 +27,8 @@ android {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
         targetSdk = 36
-        versionCode = 18
-        versionName = "2.0.5"
+        versionCode = 19
+        versionName = "2.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,6 +47,11 @@ android {
                 "ADMOB_BANNER_ID",
                 "\"${admobBannerId ?: "ca-app-pub-3940256099942544/6300978111"}\"",
             )
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_ID",
+                "\"${admobInterstitialId ?: "ca-app-pub-3940256099942544/1033173712"}\"",
+            )
         }
         debug {
             isShrinkResources = false
@@ -54,6 +61,11 @@ android {
                 "String",
                 "ADMOB_BANNER_ID",
                 "\"ca-app-pub-3940256099942544/6300978111\"",
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_ID",
+                "\"ca-app-pub-3940256099942544/1033173712\"",
             )
         }
     }
