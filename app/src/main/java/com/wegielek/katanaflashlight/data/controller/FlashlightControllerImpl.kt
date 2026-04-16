@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.wegielek.katanaflashlight.domain.controller.FlashlightController
 
 class FlashlightControllerImpl(
@@ -15,26 +14,26 @@ class FlashlightControllerImpl(
     private var cameraId: String? = null
     private var isFlashEnabled: Boolean = false
 
-    private val torchCallback =
-        object : CameraManager.TorchCallback() {
-            override fun onTorchModeChanged(
-                id: String,
-                enabled: Boolean,
-            ) {
-                if (id == cameraId) {
-                    isFlashEnabled = enabled
-                }
-            }
-        }
+//    private val torchCallback =
+//        object : CameraManager.TorchCallback() {
+//            override fun onTorchModeChanged(
+//                id: String,
+//                enabled: Boolean,
+//            ) {
+//                if (id == cameraId) {
+//                    isFlashEnabled = enabled
+//                }
+//            }
+//        }
 
     override fun initialize() {
         cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraId = findBackCameraWithFlash(cameraManager)
 
-        cameraManager?.registerTorchCallback(
-            torchCallback,
-            null, // callback on calling thread
-        )
+//        cameraManager?.registerTorchCallback(
+//            torchCallback,
+//            null, // callback on calling thread
+//        )
     }
 
     override fun hasFlashlight(): Boolean = context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)
@@ -73,6 +72,7 @@ class FlashlightControllerImpl(
         } else {
             cameraId?.let { cameraManager?.setTorchMode(it, !isFlashEnabled) }
         }
+        isFlashEnabled = !isFlashEnabled
     }
 
     override fun turnOffFlashlight() {
