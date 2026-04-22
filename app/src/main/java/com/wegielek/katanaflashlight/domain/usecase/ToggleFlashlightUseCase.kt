@@ -10,7 +10,7 @@ class ToggleFlashlightUseCase(
     private val settingsRepository: SettingsRepository,
 ) {
     suspend operator fun invoke() {
-        flashlightController.toggleFlashlight(settingsRepository.getStrength())
+        flashlightController.safeToggle(settingsRepository.getStrength())
 
         if (settingsRepository.isVibrationEnabled()) {
             vibrationController.vibrate()

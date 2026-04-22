@@ -5,7 +5,7 @@ interface FlashlightController {
 
     fun hasFlashlight(): Boolean
 
-    fun toggleFlashlight(level: Int = 1)
+    fun safeToggle(level: Int = 1)
 
     fun turnOffFlashlight()
 

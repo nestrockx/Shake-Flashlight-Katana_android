@@ -21,14 +21,14 @@ val admobInterstitialId: String? = properties.getProperty("ADMOB_INTERSTITIAL_ID
 
 android {
     namespace = "com.wegielek.katanaflashlight"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 21
-        versionName = "2.0.8"
+        targetSdk = 37
+        versionCode = 24
+        versionName = "2.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
